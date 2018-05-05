@@ -9,6 +9,7 @@ import collections as col
 import os
 import time
 
+DEF_BOX_DTYPE = np.float32
 
 class TorcsEnv:
     terminal_judge_start = 500  # Speed limit is applied after this step
@@ -30,9 +31,9 @@ class TorcsEnv:
         os.system('pkill torcs')
         time.sleep(0.5)
         if self.vision is True:
-            os.system('torcs -nofuel -nodamage -nolaptime  -vision &')
+            os.system('torcs -nofuel -nodamage -nolaptime -vision &')
         else:
-            os.system('torcs  -nofuel -nodamage -nolaptime &')
+            os.system('torcs -nofuel -nodamage -nolaptime &')
         time.sleep(0.5)
         os.system('sh autostart.sh')
         time.sleep(0.5)
@@ -48,18 +49,18 @@ class TorcsEnv:
         obs = client.S.d  # Get the current full-observation from torcs
         """
         if throttle is False:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,))
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
         else:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,))
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
 
         if vision is False:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
             low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf])
-            self.observation_space = spaces.Box(low=low, high=high)
+            self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
         else:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
             low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
-            self.observation_space = spaces.Box(low=low, high=high)
+            self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
 
     def step(self, u):
        #print("Step")
@@ -228,7 +229,7 @@ class TorcsEnv:
         image_vec =  obs_image_vec
         rgb = []
         temp = []
-        # convert size 64x64x3 = 12288 to 64x64=4096 2-D list 
+        # convert size 64x64x3 = 12288 to 64x64=4096 2-D list
         # with rgb values grouped together.
         # Format similar to the observation in openai gym
         for i in range(0,12286,3):
