@@ -31,8 +31,8 @@ def main():
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed,
         policy=args.policy, lrschedule=args.lrschedule, num_env=16)
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 def torqs_test():
     vision = False
@@ -75,4 +75,4 @@ def torqs_test():
     env.end()  # This is for shutting down TORCS
     print("Finish.")
 
-torqs_test()
+# torqs_test()
