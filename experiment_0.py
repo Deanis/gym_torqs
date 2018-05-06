@@ -8,6 +8,7 @@ from baselines.ppo2.policies import CnnPolicy, LstmPolicy, LnLstmPolicy
 
 ### From Gym Torcs
 from gym_torcs import TorcsEnv
+from sample_agent import Agent
 import numpy as np
 
 def train(env_id, num_timesteps, seed, policy, lrschedule, num_env):
@@ -30,13 +31,13 @@ def main():
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed,
         policy=args.policy, lrschedule=args.lrschedule, num_env=16)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 def torqs_test():
     vision = False
-    episode_count = 5
-    max_steps = 1000
+    episode_count = 1
+    max_steps = 10000
     reward = 0
     done = False
     step = 0
@@ -73,3 +74,5 @@ def torqs_test():
 
     env.end()  # This is for shutting down TORCS
     print("Finish.")
+
+torqs_test()
