@@ -109,9 +109,7 @@ for i_ep in range(num_episodes):
         # curr_state = (curr_state - env.observation_space.low) / \
         #                  (env.observation_space.high - env.observation_space.low)
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
-        print( action)
-        input()
-        next_frame, reward, done, _ = env.step(action)
+        next_frame, reward, done, _ = env.step(action[0][0])
         reward_t = reward
         # if reward < 99:
         #     #reward_t = (curr_time - time()) / 10.
