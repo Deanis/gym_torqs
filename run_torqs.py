@@ -23,8 +23,8 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
     #Torqs Env parameters
     vision, throttle, gear_change = False, False, False
 
-    env = VecFrameStack(make_torcs_env( num_env, seed), 4)
-    # env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
+    # env = VecFrameStack(make_torcs_env( num_env, seed), 4)
+    env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
 
     learn(policy_fn, env, seed, total_timesteps=int(num_timesteps * 1.1), lrschedule=lrschedule)
     env.close()
