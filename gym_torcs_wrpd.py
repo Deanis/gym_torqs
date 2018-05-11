@@ -2,7 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 # from os import path
-import snakeoil3_gym_wbfix as snakeoil3
+import snakeoil3_gym as snakeoil3
 import numpy as np
 import copy
 import collections as col
