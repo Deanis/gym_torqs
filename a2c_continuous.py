@@ -29,7 +29,8 @@ gamma_ = 0.95
 frame = 0
 num_episodes = 100
 episode = 0
-input_dim = env.observation_space.shape[0]
+#### REVIEW:Make it automatic later
+input_dim = 22 #env.observation_space.shape[0]
 
 tf.reset_default_graph()
 
