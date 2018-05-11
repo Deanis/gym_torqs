@@ -88,7 +88,7 @@ class EpisodicLifeEnv(gym.Wrapper):
         else:
             # no-op step to advance from terminal/lost life state
             obs, _, _, _ = self.env.step(0)
-        self.lives = self.env.unwrapped.ale.lives()
+        # self.lives = self.env.unwrapped.ale.lives()
         return obs
 
 class MaxAndSkipEnv(gym.Wrapper):
