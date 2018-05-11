@@ -120,7 +120,7 @@ for i_ep in range(num_episodes):
         curr_frame = next_frame
 
         states_list.append(curr_state)
-        actions_list.append(action)
+        actions_list.append(action[0])
         rewards_list.append(reward_t)
         mu_list.append(mu.reshape(-1,))
         sigma_list.append(sigma.reshape(-1,))
