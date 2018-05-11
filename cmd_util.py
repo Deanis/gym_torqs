@@ -15,7 +15,7 @@ from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 from mpi4py import MPI
 from gym_torcs_wrpd import TorcsEnv
 
-def make_torcs_env(num_env=2, seed=42, wrapper_kwargs=None, start_index=0,
+def make_torcs_env(num_env=1, seed=42, wrapper_kwargs=None, start_index=0,
     vision=False, throttle=False, gear_change=False):
     """
     Create a wrapped, monitored SubprocVecEnv for Torqs.
