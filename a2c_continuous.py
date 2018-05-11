@@ -12,7 +12,7 @@ import sys, os
 import random
 from time import time
 
-from gym_torcs import TorcsEnv
+from gym_torcs_wrpd import TorcsEnv
 
 #Torqs Env parameters
 vision, throttle, gear_change = False, False, False
@@ -102,17 +102,18 @@ for i_ep in range(num_episodes):
     curr_frame = env.reset()
     done = False
     curr_time = time()
+
     while done is False:
         curr_state = curr_frame.reshape(1, -1)
-        curr_state = (curr_state - env.observation_space.low) / \
-                         (env.observation_space.high - env.observation_space.low)
+        # curr_state = (curr_state - env.observation_space.low) / \
+        #                  (env.observation_space.high - env.observation_space.low)
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
         next_frame, reward, done, _ = env.step(action)
-        if reward < 99:
-            #reward_t = (curr_time - time()) / 10.
-            reward_t = -1.
-        else:
-            reward_t = 100.
+        # if reward < 99:
+        #     #reward_t = (curr_time - time()) / 10.
+        #     reward_t = -1.
+        # else:
+        #     reward_t = 100.
         ep_reward += reward
         curr_frame = next_frame
 

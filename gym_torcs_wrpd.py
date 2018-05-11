@@ -51,14 +51,14 @@ class TorcsEnv( gym.Env):
         #OpenAI Gym - Baselines and SubVecEnv compat fix
         self.seed_value = 42
 
-        self._disc_action_set = np.zeros( 3, dtype=np.intc)
-        self.action_space = spaces.Discrete( len( self._disc_action_set))
+        # self._disc_action_set = np.zeros( 3, dtype=np.intc)
+        # self.action_space = spaces.Discrete( len( self._disc_action_set))
 
         #Temporary switch to discrete actions
-        # if throttle is False:
-            # self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
-        # else:
-            # self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
+        if throttle is False:
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
+        else:
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
 
         if vision is False:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
