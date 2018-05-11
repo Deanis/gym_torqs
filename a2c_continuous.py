@@ -104,6 +104,7 @@ for i_ep in range(num_episodes):
     curr_time = time()
 
     while done is False:
+        curr_state = curr_frame
         # curr_state = curr_frame.reshape(1, -1)
         # curr_state = (curr_state - env.observation_space.low) / \
         #                  (env.observation_space.high - env.observation_space.low)
