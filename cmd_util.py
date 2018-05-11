@@ -1,6 +1,6 @@
 """
 Helpers for scripts like run_atari.py.
-Repurposed fr TORCS
+Repurposed for TORCS
 """
 
 import os
