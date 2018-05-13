@@ -53,13 +53,13 @@ class TorcsEnv( gym.Env):
 
         self._disc_action_set = np.zeros( 3, dtype=np.intc)
         self.action_space = spaces.Discrete( len( self._disc_action_set))
-        self.action_space.n = len( self._disc_action_set)
+        # self.action_space.n = len( self._disc_action_set)
 
         #Temporary switch to discrete actions
-        if throttle is False:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
-        else:
-            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
+        # if throttle is False:
+        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
+        # else:
+        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
 
         if vision is False:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
@@ -82,6 +82,7 @@ class TorcsEnv( gym.Env):
 
     def seed( self, seed_value=42):
         self.seed_value =seed_value
+    ### End Customized
 
     def step(self, u):
        #print("Step")
@@ -347,6 +348,6 @@ class TorcsEnv( gym.Env):
 ACTION_MEANING = {
     0: "STEADY",
 
-    1: "TURN_LEFT",
-    2: "TURN_RIGHT"
+    1: "LEFT",
+    2: "RIGHT"
 }

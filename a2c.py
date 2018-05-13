@@ -24,7 +24,7 @@ class Model(object):
             alpha=0.99, epsilon=1e-5, total_timesteps=int(80e6), lrschedule='linear'):
 
         sess = tf_util.make_session()
-        nact = 3 #ac_space.n
+        nact = ac_space.n
         nbatch = nenvs*nsteps
 
         A = tf.placeholder(tf.int32, [nbatch])
