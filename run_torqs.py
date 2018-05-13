@@ -37,7 +37,7 @@ def main():
     args = parser.parse_args()
     logger.configure()
     train( num_timesteps=args.num_timesteps, seed=args.seed,
-        policy=args.policy, lrschedule=args.lrschedule, num_env=2)
+        policy=args.policy, lrschedule=args.lrschedule, num_env=1)
 
 if __name__ == '__main__':
     main()
