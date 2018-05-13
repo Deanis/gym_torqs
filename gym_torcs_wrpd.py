@@ -66,9 +66,9 @@ class TorcsEnv( gym.Env):
             low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf])
             self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
         else:
-            high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
-            low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
-            self.observation_space = spaces.Box(low=low, high=high, dtype=DEF_BOX_DTYPE)
+            # high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf, 255])
+            # low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
+            self.observation_space = spaces.Box(low=0, high=255, shape=( 64, 64 ,1), dtype=np.uint8)
 
 
     #Map continuous action to Discrete one
@@ -302,11 +302,11 @@ class TorcsEnv( gym.Env):
             # Get RGB from observation
             image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[8]])
 
-            print( len( image_rgb))
-            print( image_rgb.shape)
-            input()
-
-            return image_rgb
+            # print( len( image_rgb))
+            # print( image_rgb.shape)
+            # input()
+            rsh = np.reshape( image_rgb, [64, 64, 3])
+            return rsh
 
             return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
                                speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,
