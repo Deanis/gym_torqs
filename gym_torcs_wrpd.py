@@ -51,8 +51,9 @@ class TorcsEnv( gym.Env):
         #OpenAI Gym - Baselines and SubVecEnv compat fix
         self.seed_value = 42
 
-        # self._disc_action_set = np.zeros( 3, dtype=np.intc)
-        # self.action_space = spaces.Discrete( len( self._disc_action_set))
+        self._disc_action_set = np.zeros( 3, dtype=np.intc)
+        self.action_space = spaces.Discrete( len( self._disc_action_set))
+        self.action_space.n = len( self._disc_action_set)
 
         #Temporary switch to discrete actions
         if throttle is False:
@@ -299,6 +300,12 @@ class TorcsEnv( gym.Env):
 
             # Get RGB from observation
             image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[8]])
+
+            print( len( image_rgb))
+            print( image_rgb.shape)
+            input()
+
+            return image_rgb
 
             return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
                                speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,

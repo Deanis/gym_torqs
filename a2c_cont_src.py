@@ -12,25 +12,18 @@ import sys, os
 import random
 from time import time
 
-from gym_torcs_wrpd import TorcsEnv
-
-#Torqs Env parameters
-vision, throttle, gear_change = False, False, False
-env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
-
-#env = gym.make("MountainCarContinuous-v0")
+env = gym.make("MountainCarContinuous-v0")
 
 # hyperparameters
-hidden_1 = 100
-hidden_2 = 100
+hidden_1 = 80
+hidden_2 = 80
 lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
 num_episodes = 100
 episode = 0
-#### REVIEW:Make it automatic later
-input_dim = 22 #env.observation_space.shape[0]
+input_dim = env.observation_space.shape[0]
 
 tf.reset_default_graph()
 
@@ -103,25 +96,22 @@ for i_ep in range(num_episodes):
     curr_frame = env.reset()
     done = False
     curr_time = time()
-
     while done is False:
         curr_state = curr_frame.reshape(1, -1)
-        # curr_state = (curr_state - env.observation_space.low) / \
-        #                  (env.observation_space.high - env.observation_space.low)
+        curr_state = (curr_state - env.observation_space.low) / \
+                         (env.observation_space.high - env.observation_space.low)
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
-        next_frame, reward, done, _ = env.step(action[0])
-
-        reward_t = reward
-        # if reward < 99:
-        #     #reward_t = (curr_time - time()) / 10.
-        #     reward_t = -1.
-        # else:
-        #     reward_t = 100.
+        next_frame, reward, done, _ = env.step(action)
+        if reward < 99:
+            #reward_t = (curr_time - time()) / 10.
+            reward_t = -1.
+        else:
+            reward_t = 100.
         ep_reward += reward
         curr_frame = next_frame
 
         states_list.append(curr_state)
-        actions_list.append(action[0])
+        actions_list.append(action)
         rewards_list.append(reward_t)
         mu_list.append(mu.reshape(-1,))
         sigma_list.append(sigma.reshape(-1,))

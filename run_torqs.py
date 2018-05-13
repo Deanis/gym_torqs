@@ -4,7 +4,7 @@ from baselines import logger
 #Customized OpenAI Baselines functions
 from cmd_util import make_torcs_env, torcs_arg_parser
 from baselines.common.vec_env.vec_frame_stack import VecFrameStack
-from baselines.a2c.a2c import learn
+from a2c import learn
 from baselines.ppo2.policies import CnnPolicy, LstmPolicy, LnLstmPolicy
 from gym_torcs_wrpd import TorcsEnv
 ### From Gym Torcs Wrapped
@@ -21,10 +21,11 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
         policy_fn = LnLstmPolic
 
     #Torqs Env parameters
-    vision, throttle, gear_change = False, False, False
+    vision, throttle, gear_change = True, False, False
 
-    # env = VecFrameStack(make_torcs_env( num_env, seed), 4)
-    env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
+    env = VecFrameStack(make_torcs_env( num_env, seed, \
+        vision=vision, throttle=throttle, gear_change=gear_change), 4)
+    # env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
 
     learn(policy_fn, env, seed, total_timesteps=int(num_timesteps * 1.1), lrschedule=lrschedule)
     env.close()
