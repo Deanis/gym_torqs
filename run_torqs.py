@@ -32,7 +32,7 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
 
 def main():
     parser = torcs_arg_parser()
-    parser.add_argument('--policy', help='Policy architecture', choices=['cnn', 'lstm', 'lnlstm'], default='cnn')
+    parser.add_argument('--policy', help='Policy architecture', choices=['cnn', 'lstm', 'lnlstm'], default='lstm')
     parser.add_argument('--lrschedule', help='Learning rate schedule', choices=['constant', 'linear'], default='constant')
     args = parser.parse_args()
     logger.configure()
