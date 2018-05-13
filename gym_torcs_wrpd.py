@@ -77,11 +77,13 @@ class TorcsEnv( gym.Env):
         return 0
 
     def disc_to_continuous( self, disc_ac):
-        if( disc_ac == 0):
+        if disc_ac == 0:
             return [.0]
-        else if (disc_ac == 1):
+
+        if disc_ac == 1:
             return [-.75]
-        else
+            
+        if disc_ac == 2:
             return [.75]
 
     def seed( self, seed_value=42):
