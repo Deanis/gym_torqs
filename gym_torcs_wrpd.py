@@ -82,7 +82,7 @@ class TorcsEnv( gym.Env):
 
         if disc_ac == 1:
             return [-.75]
-            
+
         if disc_ac == 2:
             return [.75]
 
@@ -96,7 +96,7 @@ class TorcsEnv( gym.Env):
         client = self.client
 
         print( "Disc to cont")
-        print( disc_to_continuous( u))
+        print( self.disc_to_continuous( u))
         input()
 
         this_action = self.agent_to_torcs(u)
