@@ -76,9 +76,13 @@ class TorcsEnv( gym.Env):
 
         return 0
 
-    def disc_to_continuous( self, discrete_action):
-
-        return 0.
+    def disc_to_continuous( self, disc_ac):
+        if( disc_ac == 0):
+            return [.0]
+        else if (disc_ac == 1):
+            return [-.75]
+        else
+            return [.75]
 
     def seed( self, seed_value=42):
         self.seed_value =seed_value
@@ -89,10 +93,10 @@ class TorcsEnv( gym.Env):
         # convert thisAction to the actual torcs actionstr
         client = self.client
 
-        print( "Action provided")
-        print( u)
+        print( "Disc to cont")
+        print( disc_to_continuous( u))
         input()
-        
+
         this_action = self.agent_to_torcs(u)
 
         # Apply Action
