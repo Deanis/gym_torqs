@@ -95,11 +95,7 @@ class TorcsEnv( gym.Env):
         # convert thisAction to the actual torcs actionstr
         client = self.client
 
-        print( "Disc to cont")
-        print( self.disc_to_continuous( u))
-        input()
-
-        this_action = self.agent_to_torcs(u)
+        this_action = self.agent_to_torcs(self.disc_to_continuous(u))
 
         # Apply Action
         action_torcs = client.R.d
