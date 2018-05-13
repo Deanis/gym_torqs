@@ -89,6 +89,10 @@ class TorcsEnv( gym.Env):
         # convert thisAction to the actual torcs actionstr
         client = self.client
 
+        print( "Action provided")
+        print( u)
+        input()
+        
         this_action = self.agent_to_torcs(u)
 
         # Apply Action
