@@ -18,7 +18,7 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
     elif policy == 'lstm':
         policy_fn = LstmPolicy
     elif policy == 'lnlstm':
-        policy_fn = LnLstmPolic
+        policy_fn = LnLstmPolicy
 
     #Torqs Env parameters
     vision, throttle, gear_change = True, False, False
