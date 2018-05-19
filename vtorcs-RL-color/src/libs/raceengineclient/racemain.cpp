@@ -1,26 +1,26 @@
 /***************************************************************************
 
-    file        : racemain.cpp
-    created     : Sat Nov 16 12:13:31 CET 2002
-    copyright   : (C) 2002 by Eric Espi�
-    email       : eric.espie@torcs.org
-    version     : $Id: racemain.cpp,v 1.13 2005/08/17 20:48:39 berniw Exp $
+file        : racemain.cpp
+created     : Sat Nov 16 12:13:31 CET 2002
+copyright   : (C) 2002 by Eric Espi�
+email       : eric.espie@torcs.org
+version     : $Id: racemain.cpp,v 1.13 2005/08/17 20:48:39 berniw Exp $
 
- ***************************************************************************/
+***************************************************************************/
 
 /***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************/
 
 /** @file
 
-    @author	<a href=mailto:eric.espie@torcs.org>Eric Espie</a>
-    @version	$Id: racemain.cpp,v 1.13 2005/08/17 20:48:39 berniw Exp $
+@author	<a href=mailto:eric.espie@torcs.org>Eric Espie</a>
+@version	$Id: racemain.cpp,v 1.13 2005/08/17 20:48:39 berniw Exp $
 */
 
 #include <stdlib.h>
@@ -111,7 +111,7 @@ ReRaceEventInit(void)
 	void *params = ReInfo->params;
 
 	if (getTextOnly()==false)
-		RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
+	RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
 	ReInitTrack();
 	if (getTextOnly()==false)
 	{
@@ -121,7 +121,7 @@ ReRaceEventInit(void)
 	// GIUSE - VISION HERE!!
 	else if (getVision())
 	{
-//		RmLoadingScreenSetText("Loading Track 3D Description...");
+		//		RmLoadingScreenSetText("Loading Track 3D Description...");
 		ReInfo->_reGraphicItf.inittrack(ReInfo->track);
 	}
 	ReEventInitResults();
@@ -190,7 +190,7 @@ reRaceRealStart(void)
 	tSituation *s = ReInfo->s;
 
 	if (getTextOnly()==false)
-		RmLoadingScreenSetText("Loading Simulation Engine...");
+	RmLoadingScreenSetText("Loading Simulation Engine...");
 	dllname = GfParmGetStr(ReInfo->_reParam, "Modules", "simu", "");
 	sprintf(key, "%smodules/simu/%s.%s", GetLibDir (), dllname, DLLEXT);
 	if (GfModLoad(0, key, &ReRaceModList)) return RM_QUIT;
@@ -227,29 +227,29 @@ reRaceRealStart(void)
 		ReInfo->_displayMode = RM_DISP_MODE_NORMAL;
 		ReInfo->_reGameScreen = ReScreenInit();
 
-//		foundHuman = 0;
-//		for (i = 0; i < s->_ncars; i++) {
-//			if (s->cars[i]->_driverType == RM_DRV_HUMAN) {
-//				foundHuman = 1;
-//				break;
-//			}
-//		}
-//		if (!foundHuman) {
-//			if (!strcmp(GfParmGetStr(params, ReInfo->_reRaceName, RM_ATTR_DISPMODE, RM_VAL_VISIBLE), RM_VAL_INVISIBLE)) {
-				ReInfo->_displayMode = RM_DISP_MODE_NONE;
-				ReInfo->_reGameScreen = ReResScreenInit();
-//			}
-//		}
-  }	else
+		//		foundHuman = 0;
+		//		for (i = 0; i < s->_ncars; i++) {
+		//			if (s->cars[i]->_driverType == RM_DRV_HUMAN) {
+		//				foundHuman = 1;
+		//				break;
+		//			}
+		//		}
+		//		if (!foundHuman) {
+		//			if (!strcmp(GfParmGetStr(params, ReInfo->_reRaceName, RM_ATTR_DISPMODE, RM_VAL_VISIBLE), RM_VAL_INVISIBLE)) {
+		ReInfo->_displayMode = RM_DISP_MODE_NONE;
+		ReInfo->_reGameScreen = ReResScreenInit();
+		//			}
+		//		}
+	}	else
 	{
 		ReInfo->_displayMode = RM_DISP_MODE_NONE;
-  }
+	}
 
 	if (!(ReInfo->s->_raceType == RM_TYPE_QUALIF) ||
 	((int)GfParmGetNum(results, RE_SECT_CURRENT, RE_ATTR_CUR_DRIVER, NULL, 1) == 1))
 	{
 		if (getTextOnly()==false)
-			RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
+		RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
 	}
 
 	for (i = 0; i < s->_ncars; i++) {
@@ -266,7 +266,7 @@ reRaceRealStart(void)
 	}
 
 	if (getTextOnly()==false)
-		RmLoadingScreenSetText("Running Prestart...");
+	RmLoadingScreenSetText("Running Prestart...");
 	for (i = 0; i < s->_ncars; i++) {
 		memset(&(s->cars[i]->ctrl), 0, sizeof(tCarCtrl));
 		s->cars[i]->ctrl.brakeCmd = 1.0;
@@ -286,12 +286,12 @@ reRaceRealStart(void)
 	}
 
 	if (getTextOnly()==false)
-		RmLoadingScreenSetText("Ready.");
+	RmLoadingScreenSetText("Ready.");
 
 	ReInfo->_reTimeMult = 1.0;
-//	ReInfo->_reLastTime = -1.0;
-//	ReInfo->s->currentTime = -2.0;
-// GIUSE - let's start immediately, to save time for evolution
+	//	ReInfo->_reLastTime = -1.0;
+	//	ReInfo->s->currentTime = -2.0;
+	// GIUSE - let's start immediately, to save time for evolution
 	ReInfo->_reLastTime = 0.0;
 	ReInfo->s->currentTime = 0.0;
 	ReInfo->s->deltaTime = RCM_MAX_DT_SIMU;
@@ -301,7 +301,12 @@ reRaceRealStart(void)
 	if (getTextOnly()==false)
 	{
 		GfScrGetSize(&sw, &sh, &vw, &vh);
-		ReInfo->_reGraphicItf.initview((sw-vw)/2, (sh-vh)/2, vw, vh, GR_VIEW_STD, ReInfo->_reGameScreen);
+		// dosssman
+		// Fixed rendering for TRAINING mode
+		// May affect other aspects ( probably)
+		// ReInfo->_reGraphicItf.initview((sw-vw)/2, (sh-vh)/2, vw, vh, GR_VIEW_STD, ReInfo->_reGameScreen);
+		ReInfo->_reGraphicItf.initview(0, 0, vw, vh, GR_VIEW_STD, ReInfo->_reGameScreen);
+		// end dosssman
 
 		if (ReInfo->_displayMode == RM_DISP_MODE_NORMAL) {
 			/* RmLoadingScreenSetText("Loading Cars 3D Objects..."); */
@@ -310,18 +315,18 @@ reRaceRealStart(void)
 
 		GfuiScreenActivate(ReInfo->_reGameScreen);
 	}
-  // GIUSE - VISION HERE!!
-  else if (getVision())
+	// GIUSE - VISION HERE!!
+	else if (getVision())
 	{
 		GfScrGetSize(&sw, &sh, &vw, &vh);
 		ReInfo->_reGraphicItf.initview((sw-vw)/2, (sh-vh)/2, vw, vh, GR_VIEW_STD, ReInfo->_reGameScreen);
 
-//		if (ReInfo->_displayMode == RM_DISP_MODE_NORMAL) {
-//			/* RmLoadingScreenSetText("Loading Cars 3D Objects..."); */
-			ReInfo->_reGraphicItf.initcars(s);
-//		}
+		//		if (ReInfo->_displayMode == RM_DISP_MODE_NORMAL) {
+		//			/* RmLoadingScreenSetText("Loading Cars 3D Objects..."); */
+		ReInfo->_reGraphicItf.initcars(s);
+		//		}
 
-//		GfuiScreenActivate(ReInfo->_reGameScreen);
+		//		GfuiScreenActivate(ReInfo->_reGameScreen);
 	}
 
 	return RM_SYNC | RM_NEXT_STEP;
@@ -374,8 +379,8 @@ ReRaceStart(void)
 		if (getTextOnly()==false)
 		{
 			if (i == 1) {
-			RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
-			RmLoadingScreenSetText("Preparing Starting Grid...");
+				RmLoadingScreenStart(ReInfo->_reName, "data/img/splash-qrloading.png");
+				RmLoadingScreenSetText("Preparing Starting Grid...");
 			} else {
 				RmShutdownLoadingScreen();
 			}
@@ -443,10 +448,10 @@ ReRaceStart(void)
 			RmShutdownLoadingScreen();
 			RmDisplayStartRace(ReInfo, StartRaceHookInit(), AbandonRaceHookInit());
 		}
-    // GIUSE - VISION HERE!!
+		// GIUSE - VISION HERE!!
 		if (getVision())
 		{
-//			RmShutdownLoadingScreen();
+			//			RmShutdownLoadingScreen();
 			RmDisplayStartRace(ReInfo, StartRaceHookInit(), AbandonRaceHookInit());
 		}
 		return RM_ASYNC | RM_NEXT_STEP;
@@ -540,15 +545,15 @@ ReRaceStop(void)
 
 		if (!strcmp(GfParmGetStr(params, ReInfo->_reRaceName, RM_ATTR_ALLOW_RESTART, RM_VAL_NO), RM_VAL_NO)) {
 			StopScrHandle = RmTriStateScreen("Race Stopped",
-						"Abandon Race", "Abort current race", AbortRaceHookInit(),
-						"Resume Race", "Return to Race", BackToRaceHookInit(),
-						"Quit Game", "Quit the game", QuitHookInit());
+			"Abandon Race", "Abort current race", AbortRaceHookInit(),
+			"Resume Race", "Return to Race", BackToRaceHookInit(),
+			"Quit Game", "Quit the game", QuitHookInit());
 		} else {
 			StopScrHandle = RmFourStateScreen("Race Stopped",
-						"Restart Race", "Restart the current race", RestartRaceHookInit(),
-						"Abandon Race", "Abort current race", AbortRaceHookInit(),
-						"Resume Race", "Return to Race", BackToRaceHookInit(),
-						"Quit Game", "Quit the game", QuitHookInit());
+			"Restart Race", "Restart the current race", RestartRaceHookInit(),
+			"Abandon Race", "Abort current race", AbortRaceHookInit(),
+			"Resume Race", "Return to Race", BackToRaceHookInit(),
+			"Quit Game", "Quit the game", QuitHookInit());
 		}
 	}
 	return RM_ASYNC | RM_NEXT_STEP;
@@ -588,8 +593,8 @@ ReRaceEnd(void)
 			}
 			else
 			{
-			  GfParmSetNum(results, RE_SECT_CURRENT, RE_ATTR_CUR_DRIVER, NULL, curDrvIdx);
-			  return RM_SYNC | RM_NEXT_RACE;
+				GfParmSetNum(results, RE_SECT_CURRENT, RE_ATTR_CUR_DRIVER, NULL, curDrvIdx);
+				return RM_SYNC | RM_NEXT_RACE;
 			}
 		}
 		return RE_STATE_EXIT;

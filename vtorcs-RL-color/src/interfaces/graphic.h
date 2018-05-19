@@ -16,8 +16,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
- 
+
+
 #ifndef _GRAPHV1_H_
 #define _GRAPHV1_H_
 
@@ -26,7 +26,10 @@
 
 #define GRX_IDENT	0
 
-#define GR_PARAM_FILE		"config/graph.xml"
+// dosssman
+// REVIEW: hardcoded
+#define GR_PARAM_FILE		"/home/z3r0/.torcs/config/graph.xml"
+// end dosssman
 
 #define GR_SOUND_PARM_CFG			"config/sound.xml"
 #define GR_SCT_SOUND				"Sound Settings"
@@ -86,7 +89,7 @@
 #define GR_ATT_REAR_LEVEL2      "Rear Level Group 2"
 #define GR_ATT_REAR_LEVEL1      "Rear Level Group 1"
 
-#define GR_ATT_FRONT_MAP1       "Front Level Map 1" 
+#define GR_ATT_FRONT_MAP1       "Front Level Map 1"
 #define GR_ATT_FRONT_MAP2       "Front Level Map 2"
 #define GR_ATT_FRONT_MAP3       "Front Level Map 3"
 #define GR_ATT_REAR_MAP1        "Rear Level Map 1"
@@ -99,7 +102,7 @@
 struct Situation;
 
 typedef int (*tfGraphicInitTrack)(tTrack *);
-typedef int (*tfGraphicInitCars)(struct Situation *); 
+typedef int (*tfGraphicInitCars)(struct Situation *);
 typedef int (*tfGraphicInitView)(int /*x*/, int /*y*/, int /*width*/, int /*height*/, int /*flag*/, void * /*screen*/);
 #define GR_VIEW_STD  0 /* full screen view */
 #define GR_VIEW_PART 1 /* partial screen view (scissor test) */
@@ -123,9 +126,6 @@ typedef struct {
 } tGraphicItf;
 
 
-    
-
-#endif /* _GRAPHV1_H_ */ 
 
 
-
+#endif /* _GRAPHV1_H_ */

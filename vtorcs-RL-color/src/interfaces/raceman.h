@@ -1,27 +1,27 @@
 /***************************************************************************
 
-    file                 : raceman.h
-    created              : Sun Jan 30 22:59:17 CET 2000
-    copyright            : (C) 2000,2002 by Eric Espie
-    email                : torcs@free.fr
-    version              : $Id: raceman.h,v 1.28 2006/02/20 20:17:43 berniw Exp $
+file                 : raceman.h
+created              : Sun Jan 30 22:59:17 CET 2000
+copyright            : (C) 2000,2002 by Eric Espie
+email                : torcs@free.fr
+version              : $Id: raceman.h,v 1.28 2006/02/20 20:17:43 berniw Exp $
 
- ***************************************************************************/
+***************************************************************************/
 
 /***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+*                                                                         *
+*   This program is free software; you can redistribute it and/or modify  *
+*   it under the terms of the GNU General Public License as published by  *
+*   the Free Software Foundation; either version 2 of the License, or     *
+*   (at your option) any later version.                                   *
+*                                                                         *
+***************************************************************************/
 
 /** @file
-    		This is the race information structures.
-    @author	<a href=mailto:torcs@free.fr>Eric Espie</a>
-    @version	$Id: raceman.h,v 1.28 2006/02/20 20:17:43 berniw Exp $
-    @ingroup	raceinfo
+This is the race information structures.
+@author	<a href=mailto:torcs@free.fr>Eric Espie</a>
+@version	$Id: raceman.h,v 1.28 2006/02/20 20:17:43 berniw Exp $
+@ingroup	raceinfo
 */
 
 #ifndef _RACEMANV1_H_
@@ -58,21 +58,21 @@ typedef int (*tfRmRunState) (struct RmInfo *);
 
 /** General info on current race */
 typedef struct {
-    int			ncars;		/**< number of cars */
-    int			totLaps;	/**< total laps */
-    int			state;
-#define RM_RACE_RUNNING		0X00000001
-#define RM_RACE_FINISHING	0X00000002
-#define RM_RACE_ENDED		0X00000004
-#define RM_RACE_STARTING	0X00000008
-#define RM_RACE_PRESTART	0X00000010
-#define RM_RACE_PAUSED		0X40000000
-    int			type;		/**< Race type */
-#define RM_TYPE_PRACTICE	0 /* Please keep the order */
-#define RM_TYPE_QUALIF		1
-#define RM_TYPE_RACE		2
-    int                 maxDammage;
-    unsigned long	fps;
+  int			ncars;		/**< number of cars */
+  int			totLaps;	/**< total laps */
+  int			state;
+  #define RM_RACE_RUNNING		0X00000001
+  #define RM_RACE_FINISHING	0X00000002
+  #define RM_RACE_ENDED		0X00000004
+  #define RM_RACE_STARTING	0X00000008
+  #define RM_RACE_PRESTART	0X00000010
+  #define RM_RACE_PAUSED		0X40000000
+  int			type;		/**< Race type */
+  #define RM_TYPE_PRACTICE	0 /* Please keep the order */
+  #define RM_TYPE_QUALIF		1
+  #define RM_TYPE_RACE		2
+  int                 maxDammage;
+  unsigned long	fps;
 } tRaceAdmInfo;
 
 #define _ncars		raceInfo.ncars
@@ -83,19 +83,19 @@ typedef struct {
 
 /** cars situation used to inform the GUI and the drivers */
 typedef struct Situation {
-    tRaceAdmInfo	raceInfo;
-    double		deltaTime;
-    double		currentTime;	/**< current time in sec since the beginning of the simulation */
-    int			nbPlayers;	/**< number of human player in local (splitted screen) */
-    tCarElt		**cars;		/**< list of cars */
+  tRaceAdmInfo	raceInfo;
+  double		deltaTime;
+  double		currentTime;	/**< current time in sec since the beginning of the simulation */
+  int			nbPlayers;	/**< number of human player in local (splitted screen) */
+  tCarElt		**cars;		/**< list of cars */
 } tSituation;
 
 /** Race Engine */
 typedef struct
 {
-    tTrackItf	trackItf;
-    tGraphicItf	graphicItf;
-    tSimItf	simItf;
+  tTrackItf	trackItf;
+  tGraphicItf	graphicItf;
+  tSimItf	simItf;
 } tRaceModIft;
 
 #define RE_STATE_CONFIG			0
@@ -114,40 +114,41 @@ typedef struct
 /** Race Engine Car Information about the race */
 typedef struct
 {
-    tTrkLocPos	prevTrkPos;
-    tdble	sTime;
-    int		lapFlag;
-    char	*raceMsg;
-    double	totalPitTime;
-    double	startPitTime;
-    tdble	topSpd;
-    tdble	botSpd;
-    tdble	fuel;
+  tTrkLocPos	prevTrkPos;
+  tdble	sTime;
+  int		lapFlag;
+  char	*raceMsg;
+  double	totalPitTime;
+  double	startPitTime;
+  tdble	topSpd;
+  tdble	botSpd;
+  tdble	fuel;
 } tReCarInfo;
 
 /** Race Engine Information.
-   @image	html raceenginestate.gif
- */
+@image	html raceenginestate.gif
+*/
 typedef struct
 {
-    int			state;
-    void		*param;
-    tRaceModIft		itf;
-    void		*gameScreen;
-    void		*menuScreen;
-    char		*filename;
-    char		*name;
-    char		*raceName;
-    tReCarInfo		*carInfo;
-    double		curTime;
-    double		lastTime;
-    double		timeMult;
-    int			running;
-#define RM_DISP_MODE_NORMAL	0
-#define RM_DISP_MODE_CAPTURE	1
-#define RM_DISP_MODE_NONE	2
-    int			displayMode;
-    int			refreshDisplay;
+  int			state;
+  void		*param;
+  tRaceModIft		itf;
+  void		*gameScreen;
+  void		*menuScreen;
+  char		*filename;
+  char		*name;
+  char		*raceName;
+  tReCarInfo		*carInfo;
+  double		curTime;
+  double		lastTime;
+  double		timeMult;
+  int			running;
+  #define RM_DISP_MODE_NORMAL	0
+  #define RM_DISP_MODE_CAPTURE	1
+  #define RM_DISP_MODE_NONE	2
+  #define RM_DISP_MODE_TRAIN  	8
+  int			displayMode;
+  int			refreshDisplay;
 } tRaceEngineInfo;
 
 #define _reState	raceEngineInfo.state
@@ -177,7 +178,7 @@ typedef struct
 
 typedef struct RmCarRules
 {
-    int			ruleState;
+  int			ruleState;
 } tRmCarRules;
 
 
@@ -196,26 +197,26 @@ typedef struct RmCarRules
 //} tRmMovieCapture;
 
 /**
- * Race Manager General Info
- */
+* Race Manager General Info
+*/
 typedef struct RmInfo
 {
-    tCarElt		*carList;	/**< List of all the cars racing */
-    tSituation		*s;		/**< Situation during race */
-    tTrack		*track;		/**< Current track */
-    void		*params;	/**< Raceman parameters */
-    void		*results;	/**< Race results */
-    tModList		**modList;	/**< drivers loaded */
-    tRmCarRules		*rules;		/**< by car rules */
-    tRaceEngineInfo	raceEngineInfo;
-    tRmMovieCapture	movieCapture;
-    // GIUSE - VISION HERE!
-    tRmVisionImg* vision;
+  tCarElt		*carList;	/**< List of all the cars racing */
+  tSituation		*s;		/**< Situation during race */
+  tTrack		*track;		/**< Current track */
+  void		*params;	/**< Raceman parameters */
+  void		*results;	/**< Race results */
+  tModList		**modList;	/**< drivers loaded */
+  tRmCarRules		*rules;		/**< by car rules */
+  tRaceEngineInfo	raceEngineInfo;
+  tRmMovieCapture	movieCapture;
+  // GIUSE - VISION HERE!
+  tRmVisionImg* vision;
 } tRmInfo;
 
 /*
- * Parameters name definitions for Race Managers
- */
+* Parameters name definitions for Race Managers
+*/
 #define RM_SECT_HEADER		"Header"
 #define RM_SECT_DRIVERS		"Drivers"
 #define RM_SECT_STARTINGGRID	"Starting Grid"

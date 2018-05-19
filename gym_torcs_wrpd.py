@@ -27,6 +27,7 @@ class TorcsEnv( gym.Env):
         self.initial_run = True
 
         ##print("launch torcs")
+        ### TODO: Add wrapping and killing with PID
         os.system('pkill torcs')
         time.sleep(0.5)
         if self.vision is True:

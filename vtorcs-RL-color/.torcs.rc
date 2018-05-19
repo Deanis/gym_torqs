@@ -1,2 +1,2 @@
-TORCS_BASE = /home/naotoyoshida/intern2016-yoshida/vtorcs-RL-color
-MAKE_DEFAULT = /home/naotoyoshida/intern2016-yoshida/vtorcs-RL-color/Make-default.mk
+TORCS_BASE = /home/z3r0/random/rl/gym_torqs/vtorcs-RL-color
+MAKE_DEFAULT = /home/z3r0/random/rl/gym_torqs/vtorcs-RL-color/Make-default.mk
