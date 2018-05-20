@@ -20,7 +20,7 @@ from gym_torcs_wrpd_cont import TorcsEnv
 vision, throttle, gear_change = False, False, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
-race_speed = 1.0 # Race speed, mainly for rendered anyway
+race_speed = 4.0 # Race speed, mainly for rendered anyway
 rendering = True # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
@@ -209,9 +209,11 @@ for i_ep in range(num_episodes):
                    "\nScores : %.4f, Max reward : %.4f, Min reward : %.4f" % (ep_reward, np.max(rewards), np.min(rewards)))
 
             #Saving trained model
-            if( i_ep % save_every_how_many_ep == 0) or i_ep+1 == num_episodes:
+            if( i_ep % save_every_how_many_ep == 0  and i_ep > 0) or i_ep+1 == num_episodes:
                 saver = tf.train.Saver()
                 model_file_name = "torcs_a2c_cont_steer_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                #Corresponding pickle file
+                stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
