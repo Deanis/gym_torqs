@@ -117,7 +117,8 @@ def bargraph(x,mn,mx,w,c='X'):
 
 class Client():
     def __init__(self,H=None,p=None,i=None,e=None,t=None,s=None,d=None,
-        vision=False, process_id=None, race_config_path=None):
+        vision=False, process_id=None, race_config_path=None, race_speed=1.0,
+        rendering=True):
         # If you don't like the option defaults,  change them here.
         self.vision = vision
 
@@ -141,6 +142,8 @@ class Client():
         #Raceconfig compat
         self.torcs_process_id = process_id
         self.race_config_path = race_config_path
+        self.race_speed = race_speed
+        self.rendering = rendering
 
         self.S= ServerState()
         self.R= DriverAction()
@@ -191,10 +194,14 @@ class Client():
                             self.torcs_process_id = None
                         #Sad life to be a process
 
-                    args = ["torcs", "-nofuel", "-nodamage", "-nolaptime"]
+                    args = ["torcs", "-nofuel", "-nodamage", "-nolaptime",
+                        "-a", str( self.race_speed)]
 
                     if self.vision:
                         args.append( "-vision")
+
+                    if not self.rendering:
+                        args.append( "-T") # Run in console
 
                     #Make sure that self.race_config_path is really set
                     if self.race_config_path is not None:
@@ -203,6 +210,9 @@ class Client():
                         args.append( self.race_config_path)
 
                     args.append("&")
+
+                    # print( "##### DEBUG: Args in Snake oil reset")
+                    # print( args)
 
                     #This PID must be recovered from the Client too later
                     self.torcs_process_id = subprocess.Popen( args, shell=False).pid

@@ -16,7 +16,7 @@ from datetime import datetime
 from gym_torcs_wrpd_cont import TorcsEnv
 
 ###### Torqs Env parameters
-vision, throttle, gear_change = False, True, False
+vision, throttle, gear_change = False, False, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 race_speed = 4.0 # Race speed, mainly for rendered anyway
@@ -33,7 +33,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 5
+num_episodes = 12
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -43,7 +43,7 @@ tf.reset_default_graph()
 
 # tensorflow graph
 states_ = tf.placeholder(tf.float32, [None, input_dim])
-actions_ = tf.placeholder(tf.float32, [None, 2])
+actions_ = tf.placeholder(tf.float32, [None, 1])
 returns_ = tf.placeholder(tf.float32, [None, 1])
 
 actor_scope = "Actor"
@@ -57,7 +57,7 @@ with tf.variable_scope(actor_scope):
     sigma_out = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
                              activation=tf.nn.softplus, name="sigma_out", use_bias=False)
     normal_dist = tf.distributions.Normal(loc=mu_out, scale=sigma_out)
-    act_out = tf.reshape(normal_dist.sample(2), shape=[-1,2])
+    act_out = tf.reshape(normal_dist.sample(1), shape=[-1,1])
     act_out = tf.clip_by_value(act_out, env.action_space.low, env.action_space.high)
 
 critic_scope = "Critic"
@@ -111,7 +111,7 @@ restore_full_name = restore_base_path + restore_file_name
 if restore_model:
     saver = tf.train.Saver()
     saver.restore(sess, restore_full_name)
-    # print( "##### DEBUG: Restored from: %s" % restore_full_name)
+    print( "##### DEBUG: Restored from: %s" % restore_full_name)
 
 # A2C algorithm
 for i_ep in range(num_episodes):
@@ -145,10 +145,10 @@ for i_ep in range(num_episodes):
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
 
         #DEBUG
-        if throttle:
-            print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
-        else:
-            print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
+        # if throttle:
+        #     print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
+        # else:
+        #     print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
 
         next_frame, reward, done, _ = env.step(action[0])
 
@@ -204,6 +204,3 @@ for i_ep in range(num_episodes):
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
-
-sess.close()
-env.end()

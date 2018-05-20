@@ -12,6 +12,7 @@ import sys, os
 import random
 from time import time
 from datetime import datetime
+import pickle
 
 from gym_torcs_wrpd_cont import TorcsEnv
 
@@ -19,8 +20,9 @@ from gym_torcs_wrpd_cont import TorcsEnv
 vision, throttle, gear_change = False, True, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
-race_speed = 4.0 # Race speed, mainly for rendered anyway
-rendering = True # Display the Torcs rendered stuff or run in console
+    # "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+race_speed = 1.0 # Race speed, mainly for rendered anyway
+rendering = False # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
     race_config_path=race_config_path, race_speed=race_speed,
@@ -101,9 +103,13 @@ sess.run(init)
 #Model saving parameter
 save_base_path = "/tmp/torcs_save/"
 save_every_how_many_ep = 10
+#Stat save
+saving_stats = True
+stats_base_path = "/tmp/torcs_save/"
 
 #Model loading / restoring
-restore_model = True
+### Pay attention to the file
+restore_model = False
 restore_base_path = "/tmp/torcs_save/"
 restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_full_name = restore_base_path + restore_file_name
@@ -112,6 +118,9 @@ if restore_model:
     saver = tf.train.Saver()
     saver.restore(sess, restore_full_name)
     # print( "##### DEBUG: Restored from: %s" % restore_full_name)
+
+# Stats for plotting
+ep_scores = []
 
 # A2C algorithm
 for i_ep in range(num_episodes):
@@ -145,10 +154,10 @@ for i_ep in range(num_episodes):
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
 
         #DEBUG
-        if throttle:
-            print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
-        else:
-            print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
+        # if throttle:
+        #     print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
+        # else:
+        #     print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
 
         next_frame, reward, done, _ = env.step(action[0])
 
@@ -177,6 +186,9 @@ for i_ep in range(num_episodes):
             mus = np.hstack(mu_list)
             sigmas = np.hstack(sigma_list)
 
+            # Stats for plotting
+            ep_scores.append( ep_reward)
+
             returns = np.zeros_like(rewards)
             rolling = 0
             for i in reversed(range(len(rewards))):
@@ -198,12 +210,23 @@ for i_ep in range(num_episodes):
                    "\nScores : %.4f, Max reward : %.4f, Min reward : %.4f" % (ep_reward, np.max(rewards), np.min(rewards)))
 
             #Saving trained model
-            if( i_ep % save_every_how_many_ep == 0) or i_ep+1 == num_episodes:
+            if( i_ep % save_every_how_many_ep == 0 and i_ep > 0) or i_ep+1 == num_episodes:
                 saver = tf.train.Saver()
-                model_file_name = "torcs_a2c_cont_steer_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                model_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                #Corresponding pickle file
+                stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
 
+                #Pickle stats like score and ep
+                if saving_stats:
+                    # stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                    stats_save_path = stats_base_path + stats_file_name
+                    with open( stats_save_path, "wb") as stats_save_file:
+                        pickle.dump( ep_scores, stats_save_file)
+
+                    for k, score in enumerate( ep_scores):
+                        print( "Episode %d - Score: %d;" % (k,score))
 sess.close()
 env.end()

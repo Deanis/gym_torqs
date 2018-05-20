@@ -186,6 +186,10 @@ class TorcsEnv( gym.Env):
         if obs['damage'] - obs_pre['damage'] > 0:
             reward = -1
 
+        #Penalize if constant speed
+        if obs["speedX"] == obs_pre["speedX"] == 0:
+            reward -= 1
+
         # Termination judgement #########################
         episode_terminate = False
         if track.min() < 0:  # Episode is terminated if the car is out of track

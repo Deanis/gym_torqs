@@ -18,7 +18,8 @@ from gym_torcs_wrpd_cont import TorcsEnv
 ###### Torqs Env parameters
 vision, throttle, gear_change = False, True, False
 race_config_path = \
-    "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+    "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_bot_practice.xml"
+    # "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 race_speed = 4.0 # Race speed, mainly for rendered anyway
 rendering = True # Display the Torcs rendered stuff or run in console
 
@@ -103,7 +104,7 @@ save_base_path = "/tmp/torcs_save/"
 save_every_how_many_ep = 10
 
 #Model loading / restoring
-restore_model = True
+restore_model = False
 restore_base_path = "/tmp/torcs_save/"
 restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_full_name = restore_base_path + restore_file_name

@@ -22,11 +22,14 @@ class TorcsEnv( gym.Env):
     initial_reset = True
 
     ### TODO: Default race config path, inferno ?
-    def __init__(self, vision=False, throttle=False, gear_change=False, race_config_path=None):
+    def __init__(self, vision=False, throttle=False, gear_change=False,
+        race_config_path=None,race_speed=1.0, rendering=True):
        #print("Init")
         self.vision = vision
         self.throttle = throttle
         self.gear_change = gear_change
+        self.race_speed = race_speed
+        self.rendering = rendering
 
         self.initial_run = True
 
@@ -36,10 +39,14 @@ class TorcsEnv( gym.Env):
 
         ##print("launch torcs")
         #Just to be sure
-        args = ["torcs", "-nofuel", "-nodamage", "-nolaptime"]
+        args = ["torcs", "-nofuel", "-nodamage", "-nolaptime",
+            "-a", str( self.race_speed)]
 
         if self.vision:
             args.append( "-vision")
+
+        if not self.rendering:
+            args.append( "-T") # Run in console
 
         if self.race_config_path is not None:
             args.append( "-raceconfig")
@@ -48,6 +55,7 @@ class TorcsEnv( gym.Env):
 
         args.append("&")
 
+        # print( "##### DEBUG: Args in init_torcs")
         # print( args)
 
         #Workaround: Sometimes the process has to be killed in them
@@ -217,7 +225,9 @@ class TorcsEnv( gym.Env):
         ### dosssman: Pass existing process id and race config path
         self.client = snakeoil3.Client(p=3101, vision=self.vision,
             process_id=self.torcs_process_id,
-            race_config_path=self.race_config_path)  #Open new UDP in vtorcs
+            race_config_path=self.race_config_path,
+            race_speed=self.race_speed,
+            rendering=self.rendering)  #Open new UDP in vtorcs
 
         self.client.MAX_STEPS = np.inf
 
@@ -278,15 +288,19 @@ class TorcsEnv( gym.Env):
                 #Then kill itself
                 p.terminate()
             except Exception:
-                ### TODO: Eventually figured out what's wroong
+                ### TODO: Eventually FIGURE out what's woong
                 #Hint:the process seems to already have beenkilled somewhereelse
                 pass
             #Sad life to be a process
 
-        args = ["torcs", "-nofuel", "-nodamage", "-nolaptime"]
+        args = ["torcs", "-nofuel", "-nodamage", "-nolaptime",
+            "-a", str( self.race_speed)]
 
         if self.vision:
             args.append( "-vision")
+
+        if not self.rendering:
+            args.append( "-T") # Run in console
 
         if self.race_config_path is not None:
             args.append( "-raceconfig")
@@ -294,7 +308,8 @@ class TorcsEnv( gym.Env):
             args.append( self.race_config_path)
 
         args.append("&")
-
+        # print( "##### DEBUG: Args in reset_torcs")
+        # print( args)
         self.torcs_process_id = subprocess.Popen( args, shell=False).pid
 
     def agent_to_torcs(self, u):
@@ -379,37 +394,3 @@ class TorcsEnv( gym.Env):
                                track=np.array(raw_obs['track'], dtype=np.float32)/200.,
                                wheelSpinVel=np.array(raw_obs['wheelSpinVel'], dtype=np.float32),
                                img=image_rgb)
-
-    #OpenAI COmpat  Action Meanings
-    def get_action_meanings(self):
-        return [ACTION_MEANING[i] for i in self._disc_action_set]
-
-    # def get_keys_to_action(self):
-    #     KEYWORD_TO_KEY = {
-    #         'UP':      ord('w'),
-    #         'DOWN':    ord('s'),
-    #         'LEFT':    ord('a'),
-    #         'RIGHT':   ord('d'),
-    #         'FIRE':    ord(' '),
-    #     }
-    #
-    #     keys_to_action = {}
-    #
-    #     for action_id, action_meaning in enumerate(self.get_action_meanings()):
-    #         keys = []
-    #         for keyword, key in KEYWORD_TO_KEY.items():
-    #             if keyword in action_meaning:
-    #                 keys.append(key)
-    #         keys = tuple(sorted(keys))
-    #
-    #         assert keys not in keys_to_action
-    #         keys_to_action[keys] = action_id
-    #
-    #     return keys_to_action
-
-ACTION_MEANING = {
-    0: "STEADY",
-
-    1: "LEFT",
-    2: "RIGHT"
-}

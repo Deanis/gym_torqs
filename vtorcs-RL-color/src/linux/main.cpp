@@ -166,8 +166,8 @@ init_args(int argc, char **argv, const char **raceconfig)
       if(i < argc) {
         *raceconfig = argv[i];
         // GfOut( "\n##### DEBUG: race config file: ");
-        GfOut( *raceconfig);
-        GfOut( " \n");
+        // GfOut( *raceconfig);
+        // GfOut( " \n");
         runRaceConfigGUI = true;
         i++;
       }
@@ -185,8 +185,8 @@ init_args(int argc, char **argv, const char **raceconfig)
       if(i < argc) {
         *raceconfig = argv[i];
         // GfOut( "\n##### DEBUG: race config file: ");
-        GfOut( *raceconfig);
-        GfOut( " \n");
+        // GfOut( *raceconfig);
+        // GfOut( " \n");
         runRaceConfigNoGUI = true;
         i++;
       }
