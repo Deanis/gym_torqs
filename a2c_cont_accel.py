@@ -226,7 +226,7 @@ for i_ep in range(num_episodes):
                     with open( stats_save_path, "wb") as stats_save_file:
                         pickle.dump( ep_scores, stats_save_file)
 
-                    for k, score in enumerate( ep_scores):
-                        print( "Episode %d - Score: %d;" % (k,score))
+                    # for k, score in enumerate( ep_scores):
+                    #     print( "Episode %d - Score: %d;" % (k,score))
 sess.close()
 env.end()
