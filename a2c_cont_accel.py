@@ -35,7 +35,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 5
+num_episodes = 50000
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -102,7 +102,7 @@ sess.run(init)
 
 #Model saving parameter
 save_base_path = "/tmp/torcs_save/"
-save_every_how_many_ep = 10
+save_every_how_many_ep = 100
 #Stat save
 saving_stats = True
 stats_base_path = "/tmp/torcs_save/"

@@ -12,6 +12,7 @@ import sys, os
 import random
 from time import time
 from datetime import datetime
+import pickle
 
 from gym_torcs_wrpd_cont import TorcsEnv
 
@@ -19,7 +20,7 @@ from gym_torcs_wrpd_cont import TorcsEnv
 vision, throttle, gear_change = False, False, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
-race_speed = 4.0 # Race speed, mainly for rendered anyway
+race_speed = 1.0 # Race speed, mainly for rendered anyway
 rendering = True # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
@@ -33,7 +34,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 12
+num_episodes = 50000
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -100,10 +101,14 @@ sess.run(init)
 
 #Model saving parameter
 save_base_path = "/tmp/torcs_save/"
-save_every_how_many_ep = 10
+save_every_how_many_ep = 100
+
+#Stat save
+saving_stats = True
+stats_base_path = "/tmp/torcs_save/"
 
 #Model loading / restoring
-restore_model = True
+restore_model = False
 restore_base_path = "/tmp/torcs_save/"
 restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_full_name = restore_base_path + restore_file_name
@@ -112,6 +117,9 @@ if restore_model:
     saver = tf.train.Saver()
     saver.restore(sess, restore_full_name)
     print( "##### DEBUG: Restored from: %s" % restore_full_name)
+
+# Stats for plotting
+ep_scores = []
 
 # A2C algorithm
 for i_ep in range(num_episodes):
@@ -176,7 +184,10 @@ for i_ep in range(num_episodes):
             rewards = np.hstack(rewards_list)
             mus = np.hstack(mu_list)
             sigmas = np.hstack(sigma_list)
-
+            
+            # Stats for plotting
+            ep_scores.append( ep_reward)
+            
             returns = np.zeros_like(rewards)
             rolling = 0
             for i in reversed(range(len(rewards))):
@@ -204,3 +215,10 @@ for i_ep in range(num_episodes):
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
+                
+                #Pickle stats like score and ep
+                if saving_stats:
+                    # stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                    stats_save_path = stats_base_path + stats_file_name
+                    with open( stats_save_path, "wb") as stats_save_file:
+                        pickle.dump( ep_scores, stats_save_file)
