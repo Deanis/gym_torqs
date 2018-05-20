@@ -5,4 +5,5 @@ run.sh
 *.depend
 *.so
 *.spec
-
+*.gch
+*torcs-bin
