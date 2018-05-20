@@ -43,6 +43,7 @@ extern bool bKeepModules;
 
 // By dosssman
 bool runRaceConfigGUI = false;
+bool runRaceConfigNoGUI = false;
 // End By dosssman
 
 static void
@@ -158,12 +159,35 @@ init_args(int argc, char **argv, const char **raceconfig)
     // dosssman
     // directly start race from raceconfig file through command line
     else if(strncmp(argv[i], "-raceconfig", 11) == 0) {
+      // GfOut( "\n##### DEBUG: race config specified. #####\n");
       i++;
       *raceconfig = "";
 
       if(i < argc) {
         *raceconfig = argv[i];
+        // GfOut( "\n##### DEBUG: race config file: ");
+        GfOut( *raceconfig);
+        GfOut( " \n");
         runRaceConfigGUI = true;
+        i++;
+      }
+
+      if((strlen(*raceconfig) == 0) || (strstr(*raceconfig, ".xml") == 0)) {
+        printf("Please specify a race configuration xml when using -r\n");
+        exit(1);
+      }
+    }
+    else if(strncmp(argv[i], "-runconsole", 11) == 0) {
+      // GfOut( "\n##### DEBUG: race config specified. #####\n");
+      i++;
+      *raceconfig = "";
+
+      if(i < argc) {
+        *raceconfig = argv[i];
+        // GfOut( "\n##### DEBUG: race config file: ");
+        GfOut( *raceconfig);
+        GfOut( " \n");
+        runRaceConfigNoGUI = true;
         i++;
       }
 
@@ -219,6 +243,8 @@ main(int argc, char *argv[])
 
     ReGuiWithoutSelect(raceconfig);
 
+  } else if( runRaceConfigNoGUI) {
+    ReRunRaceOnConsole(raceconfig);
   } else {
   // End dosssman
 

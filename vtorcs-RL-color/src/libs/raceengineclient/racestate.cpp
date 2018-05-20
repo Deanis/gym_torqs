@@ -2,9 +2,9 @@
 
     file        : racestate.cpp
     created     : Sat Nov 16 12:00:42 CET 2002
-    copyright   : (C) 2002 by Eric Espi�                       
-    email       : eric.espie@torcs.org   
-    version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $                                  
+    copyright   : (C) 2002 by Eric Espi�
+    email       : eric.espie@torcs.org
+    version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 
  ***************************************************************************/
 
@@ -17,8 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 
-/** @file   
-    		
+/** @file
+
     @author	<a href=mailto:eric.espie@torcs.org>Eric Espie</a>
     @version	$Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 */
@@ -75,7 +75,7 @@ ReStateManage(void)
 				{
 //					GfOut("RaceEngine: state = RE_STATE_CONFIG\n");
 					/* Display the race specific menu */
-//					mode = 
+//					mode =
 					ReRacemanMenu();
 //					if (mode & RM_NEXT_STEP) {
 						ReInfo->_reState = RE_STATE_EVENT_INIT;
@@ -240,6 +240,7 @@ ReStateManage(void)
 void
 ReStateApply(void *vstate)
 {
+
 	long state = (long)vstate;
 
 	ReInfo->_reState = (int)state;

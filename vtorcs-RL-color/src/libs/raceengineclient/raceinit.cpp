@@ -229,6 +229,54 @@ void ReGuiWithoutSelect(const char* raceconfig){
 }
 //////////////////////////////////////////// end by yurong
 
+// dosssman
+void ReRunRaceOnConsole(const char* raceconfig)
+{
+	ReInfo = (tRmInfo *)calloc(1, sizeof(tRmInfo));
+	ReInfo->s = (tSituation *)calloc(1, sizeof(tSituation));
+	ReInfo->modList = &ReRaceModList;
+
+	const int BUFSIZE = 1024;
+	char buf[BUFSIZE];
+	snprintf(buf, BUFSIZE, "%s%s", GetLocalDir(), RACE_ENG_CFG);
+
+	ReInfo->_reParam = GfParmReadFile(buf, GFPARM_RMODE_REREAD | GFPARM_RMODE_CREAT);
+	ReInfo->_displayMode = RM_DISP_MODE_CONSOLE;
+
+	GfOut("Loading Track Loader...\n");
+	const char* dllname = GfParmGetStr(ReInfo->_reParam, "Modules", "track", "");
+	snprintf(buf, BUFSIZE, "%smodules/track/%s.%s", GetLibDir (), dllname, DLLEXT);
+	if (GfModLoad(0, buf, &reEventModList)) return;
+	reEventModList->modInfo->fctInit(reEventModList->modInfo->index, &ReInfo->_reTrackItf);
+
+	ReInfo->movieCapture.enabled = 0;
+
+	const char *s, *e, *m;
+
+	ReInfo->params = GfParmReadFile(raceconfig, GFPARM_RMODE_STD);
+	if (ReInfo->params == 0) {
+		GfError("Could not open file: %s\n", raceconfig);
+		exit(1);
+	}
+
+	s = GfParmGetFileName(ReInfo->params);
+	while ((m = strstr(s, "/")) != 0) {
+		s = m + 1;
+	}
+
+	e = strstr(s, PARAMEXT);
+	ReInfo->_reFilename = strndup(s, e-s+1);
+	ReInfo->_reFilename[e-s] = '\0';
+	ReInfo->_reName = GfParmGetStr(ReInfo->params, RM_SECT_HEADER, RM_ATTR_NAME, "");
+
+	ReInitResults();
+
+	ReStateApply((void *) RE_STATE_EVENT_INIT);
+	GfParmReleaseHandle(ReInfo->params);
+	ReShutdown();
+}
+// end dosssman
+
 /* Register a race manager */
 static void
 reRegisterRaceman(tFList *racemanCur)

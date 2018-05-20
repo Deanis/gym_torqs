@@ -9,8 +9,11 @@ from baselines.ppo2.policies import CnnPolicy, LstmPolicy, LnLstmPolicy
 from gym_torcs_wrpd import TorcsEnv
 ### From Gym Torcs Wrapped
 # from gym_torcs_wrpd import TorcsEnv
-# from sample_agent import Agent
+from sample_agent import Agent
 import numpy as np
+#Reading cmd line args
+import sys
+# import matplotlib.pyplot as plt
 
 def train( num_timesteps, seed, policy, lrschedule, num_env):
     if policy == 'cnn':
@@ -21,10 +24,13 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
         policy_fn = LnLstmPolicy
 
     #Torqs Env parameters
-    vision, throttle, gear_change = True, False, False
+    vision, throttle, gear_change = False, False, False
+    race_config_path = \
+        "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 
-    env = VecFrameStack(make_torcs_env( num_env, seed, \
-        vision=vision, throttle=throttle, gear_change=gear_change), 4)
+    env = VecFrameStack(make_torcs_env( num_env, seed,
+        vision=vision, throttle=throttle, gear_change=gear_change,
+        race_config_path=race_config_path), 4)
     # env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
 
     learn(policy_fn, env, seed, total_timesteps=int(num_timesteps * 1.1), lrschedule=lrschedule)
@@ -32,7 +38,7 @@ def train( num_timesteps, seed, policy, lrschedule, num_env):
 
 def main():
     parser = torcs_arg_parser()
-    parser.add_argument('--policy', help='Policy architecture', choices=['cnn', 'lstm', 'lnlstm'], default='cnn')
+    parser.add_argument('--policy', help='Policy architecture', choices=['cnn', 'lstm', 'lnlstm'], default='lstm')
     parser.add_argument('--lrschedule', help='Learning rate schedule', choices=['constant', 'linear'], default='constant')
     args = parser.parse_args()
     logger.configure()
@@ -42,26 +48,29 @@ def main():
 if __name__ == '__main__':
     main()
 
+#Torcs Env Tests
 def torqs_test():
     #Torcs multiple instance test
     vision = False
-    vision1 = False
-    episode_count = 1
-    episode_count1 = 1
-    max_steps = 10000
+    episode_count = 30
+    max_steps = 100
     reward = 0
-    reward1 = 0
     done = False
-    done1 = False
     step = 0
-    step1 = 0
 
     # Generate a Torcs environment
-    env = TorcsEnv(vision=vision, throttle=False)
-    env1= TorcsEnv(vision=True, throttle=False)
+    # Race config expected as first argument
+    if len( sys.argv) > 1:
+        race_config_path = sys.argv[1]
+    else:
+        ### TODO: Remove Hardcoded
+        race_config_path = \
+            "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+            # "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+
+    env = TorcsEnv(vision=vision, throttle=False, race_config_path=race_config_path)
 
     agent = Agent(1)  # steering only
-    agent1 = Agent( 1)
 
     print("TORCS Experiment Start.")
     for i in range(episode_count):
@@ -70,34 +79,23 @@ def torqs_test():
         if np.mod(i, 3) == 0:
             # Sometimes you need to relaunch TORCS because of the memory leak error
             ob = env.reset(relaunch=True)
-            ob1 = ob = env1.reset(relaunch=True)
         else:
             ob = env.reset()
-            ob1 = env1.reset()
 
         total_reward = 0.
-        total_reward1 = 0.
         for j in range(max_steps):
-            action = agent.act(ob, reward, done, vision)
-            action1 = agent1.act(ob1, reward, done, vision)
-
-            ob, reward, done, _ = env.step(action)
-            ob1, reward1, done1, _ = env1.step( action1)
-            #print(ob)
+            # action = agent.act(ob, reward, done, vision)
+            ob, reward, done, _ = env.step( np.random.choice( [ 0,1,2], p=[1/3, 1/3, 1/3]))
+            # print( ob.shape)
+            # print( ob)
             total_reward += reward
-            total_reward1 += reward1
 
             step += 1
-            step1 += 1
-            if done and done1:
+            if done:
                 break
 
         print("TOTAL REWARD @ " + str(i) +" -th Episode  :  " + str(total_reward))
         print("Total Step: " + str(step))
-        print("")
-
-        print("TOTAL REWARD1 @ " + str(i) +" -th Episode  :  " + str(total_reward1))
-        print("Total Step: " + str(step1))
         print("")
 
     env.end()  # This is for shutting down TORCS

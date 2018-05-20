@@ -69,15 +69,15 @@ class TorcsEnv( gym.Env):
         #OpenAI Gym - Baselines and SubVecEnv compat fix
         self.seed_value = 42
 
-        self._disc_action_set = np.zeros( 3, dtype=np.intc)
-        self.action_space = spaces.Discrete( len( self._disc_action_set))
+        # self._disc_action_set = np.zeros( 3, dtype=np.intc)
+        # self.action_space = spaces.Discrete( len( self._disc_action_set))
         # self.action_space.n = len( self._disc_action_set)
 
         #Temporary switch to discrete actions
-        # if throttle is False:
-        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
-        # else:
-        #     self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
+        if throttle is False:
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(1,), dtype=DEF_BOX_DTYPE)
+        else:
+            self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=DEF_BOX_DTYPE)
 
         if vision is False:
             high = np.array([1., np.inf, np.inf, np.inf, 1., np.inf, 1., np.inf])
@@ -88,23 +88,8 @@ class TorcsEnv( gym.Env):
             # low = np.array([0., -np.inf, -np.inf, -np.inf, 0., -np.inf, 0., -np.inf, 0])
             self.observation_space = spaces.Box(low=0, high=255, shape=( 64, 64 ,1), dtype=np.uint8)
 
-    #Map continuous action to Discrete one
-    def conti_to_disc_act( self, continuous_action):
-
-        return 0
-
-    def disc_to_continuous( self, disc_ac):
-        if disc_ac == 0:
-            return [.0]
-
-        if disc_ac == 1:
-            return [-.75]
-
-        if disc_ac == 2:
-            return [.75]
-
     def seed( self, seed_value=42):
-        self.seed_value =seed_value
+        self.seed_value = seed_value
     ### End Customized
 
     def step(self, u):
@@ -112,7 +97,11 @@ class TorcsEnv( gym.Env):
         # convert thisAction to the actual torcs actionstr
         client = self.client
 
-        this_action = self.agent_to_torcs(self.disc_to_continuous(u))
+        # print( "#### DEBUG : About to pass action to Server ?\n")
+        # print( u)
+        # input()
+
+        this_action = self.agent_to_torcs( u)
 
         # Apply Action
         action_torcs = client.R.d

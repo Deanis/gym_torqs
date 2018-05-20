@@ -12,11 +12,14 @@ import sys, os
 import random
 from time import time
 
-from gym_torcs_wrpd import TorcsEnv
+from gym_torcs_wrpd_cont import TorcsEnv
 
 #Torqs Env parameters
 vision, throttle, gear_change = False, False, False
-env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change)
+race_config_path = \
+    "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
+    race_config_path=race_config_path)
 
 #env = gym.make("MountainCarContinuous-v0")
 
@@ -105,6 +108,9 @@ for i_ep in range(num_episodes):
     curr_time = time()
 
     while done is False:
+        # print( "#### DEBUG : Current States/n")
+        # print( curr_frame)
+
         curr_state = curr_frame.reshape(1, -1)
         # curr_state = (curr_state - env.observation_space.low) / \
         #                  (env.observation_space.high - env.observation_space.low)

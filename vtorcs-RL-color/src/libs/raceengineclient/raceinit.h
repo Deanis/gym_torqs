@@ -41,6 +41,9 @@ extern char *ReGetPrevRaceName(void);
 //////////////////////////////////////////// by yurong
 extern void ReGuiWithoutSelect(const char* raceconfig);
 //////////////////////////////////////////// end by yurong
+// dosssman
+extern void ReRunRaceOnConsole(const char* raceconfig);
+// end dosssman
 
 extern tModList *ReRaceModList;
 
