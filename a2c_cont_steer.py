@@ -112,7 +112,8 @@ stats_base_path = "/tmp/torcs_save/"
 
 #Model loading / restoring
 restore_model = True
-restore_base_path = "/tmp/torcs_save/"
+# restore_base_path = "/tmp/torcs_save/"
+restore_base_path = os.getcwd() + "/trained_models/"
 # restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_file_name = "torcs_a2c_cont_steer_2018-05-21 16:44:15.948@ep_12_scored_342233.tfckpt"
 
