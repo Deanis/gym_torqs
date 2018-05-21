@@ -187,8 +187,9 @@ class TorcsEnv( gym.Env):
             reward = -1
 
         #Penalize if constant speed
-        if obs["speedX"] == obs_pre["speedX"] == 0:
-            reward -= 1
+        if self.throttle:
+            if obs["speedX"] == obs_pre["speedX"] == 0:
+                reward -= 1
 
         # Termination judgement #########################
         episode_terminate = False
