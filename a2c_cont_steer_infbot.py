@@ -19,8 +19,9 @@ from gym_torcs_wrpd_cont import TorcsEnv
 ###### Torqs Env parameters
 vision, throttle, gear_change = False, False, False
 race_config_path = \
-    "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
-race_speed = 4.0 # Race speed, mainly for rendered anyway
+    "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_bot_practice.xml"
+    # "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
+race_speed = 2.0 # Race speed, mainly for rendered anyway
 rendering = True # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
@@ -34,7 +35,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 200
+num_episodes = 5
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -116,7 +117,7 @@ restore_full_name = restore_base_path + restore_file_name
 if restore_model:
     saver = tf.train.Saver()
     saver.restore(sess, restore_full_name)
-    print( "##### DEBUG: Restored from: %s" % restore_full_name)
+    # print( "##### DEBUG: Restored from: %s" % restore_full_name)
 
 # Stats for plotting
 ep_scores = []
@@ -153,10 +154,10 @@ for i_ep in range(num_episodes):
         mu, sigma, action = sess.run([mu_out, sigma_out, act_out], feed_dict={states_: curr_state})
 
         #DEBUG
-        # if throttle:
-        #     print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
-        # else:
-        #     print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
+        #if throttle:
+        #    print( "\tStep: %d - Steering: %.2f - Accel: %.2f" % ( step, action[0][0], action[0][1]))
+        #else:
+        #    print( "\tStep: %d - Steering: %.2f" % ( step, action[0][0]))
 
         next_frame, reward, done, _ = env.step(action[0])
 
@@ -187,7 +188,7 @@ for i_ep in range(num_episodes):
 
             # Stats for plotting
             ep_scores.append( ep_reward)
-
+            
             returns = np.zeros_like(rewards)
             rolling = 0
             for i in reversed(range(len(rewards))):
@@ -209,7 +210,7 @@ for i_ep in range(num_episodes):
                    "\nScores : %.4f, Max reward : %.4f, Min reward : %.4f" % (ep_reward, np.max(rewards), np.min(rewards)))
 
             #Saving trained model
-            if( i_ep % save_every_how_many_ep == 0  and i_ep > 0) or i_ep+1 == num_episodes:
+            if( i_ep % save_every_how_many_ep == 0) or i_ep+1 == num_episodes:
                 saver = tf.train.Saver()
                 model_file_name = "torcs_a2c_cont_steer_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 #Corresponding pickle file
@@ -217,13 +218,13 @@ for i_ep in range(num_episodes):
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
-
+                
                 #Pickle stats like score and ep
                 if saving_stats:
                     # stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                     stats_save_path = stats_base_path + stats_file_name
                     with open( stats_save_path, "wb") as stats_save_file:
                         pickle.dump( ep_scores, stats_save_file)
-                        
+
 sess.close()
 env.end()
