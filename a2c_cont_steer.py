@@ -69,7 +69,7 @@ with tf.variable_scope(critic_scope):
     h_1_cri = layers.dense(inputs=states_, units=hidden_1, kernel_initializer=xavier_initializer(), \
                         name="h_1_cri", use_bias=False)
     h_2_cri = layers.dense(inputs=h_1_cri, units=hidden_2, kernel_initializer=xavier_initializer(), \
-                       activation=tf.nn.relu, name="h_2_cri", use_bias=False)
+                        name="h_2_cri", use_bias=False)
     v_out = layers.dense(inputs=h_2_cri, units=1, activation=None, kernel_initializer=xavier_initializer(), \
                          name="v_out", use_bias=False)
 
@@ -103,12 +103,12 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 #Model saving parameter
-save_base_path = "/tmp/torcs_save/"
+save_base_path = os.getcwd() + "/trained_models/"
 save_every_how_many_ep = 1
 
 #Stat save
 saving_stats = True
-stats_base_path = "/tmp/torcs_save/"
+stats_base_path = os.getcwd() + "/trained_models/"
 
 #Model loading / restoring
 restore_model = True

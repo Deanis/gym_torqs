@@ -21,7 +21,7 @@ vision, throttle, gear_change = False, True, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
     # "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
-race_speed = 1.0 # Race speed, mainly for rendered anyway
+race_speed = 8.0 # Race speed, mainly for rendered anyway
 rendering = False # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
@@ -35,7 +35,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 50000
+num_episodes = 200
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -51,11 +51,11 @@ returns_ = tf.placeholder(tf.float32, [None, 1])
 actor_scope = "Actor"
 with tf.variable_scope(actor_scope):
     h_1_act = layers.dense(inputs=states_, units=hidden_1, kernel_initializer=xavier_initializer(), \
-                       activation=tf.nn.selu, name="h_1_act", use_bias=False)
+                       name="h_1_act", use_bias=False)
     h_2_act = layers.dense(inputs=h_1_act, units=hidden_2, kernel_initializer=xavier_initializer(), \
-                       activation=tf.nn.selu, name="h_2_act", use_bias=False)
+                       name="h_2_act", use_bias=False)
     mu_out = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
-                          activation=tf.nn.tanh, name="mu_out", use_bias=False)
+                       name="mu_out", use_bias=False)
     sigma_out = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
                              activation=tf.nn.softplus, name="sigma_out", use_bias=False)
     normal_dist = tf.distributions.Normal(loc=mu_out, scale=sigma_out)
@@ -65,9 +65,9 @@ with tf.variable_scope(actor_scope):
 critic_scope = "Critic"
 with tf.variable_scope(critic_scope):
     h_1_cri = layers.dense(inputs=states_, units=hidden_1, kernel_initializer=xavier_initializer(), \
-                       activation=tf.nn.selu, name="h_1_cri", use_bias=False)
+                       name="h_1_cri", use_bias=False)
     h_2_cri = layers.dense(inputs=h_1_cri, units=hidden_2, kernel_initializer=xavier_initializer(), \
-                       activation=tf.nn.selu, name="h_2_cri", use_bias=False)
+                       name="h_2_cri", use_bias=False)
     v_out = layers.dense(inputs=h_2_cri, units=1, activation=None, kernel_initializer=xavier_initializer(), \
                          name="v_out", use_bias=False)
 
@@ -101,16 +101,18 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 #Model saving parameter
-save_base_path = "/tmp/torcs_save/"
+# save_base_path = "/tmp/torcs_save/"
+save_base_path = os.getcwd() + "/trained_models/"
 save_every_how_many_ep = 100
 #Stat save
 saving_stats = True
-stats_base_path = "/tmp/torcs_save/"
+# stats_base_path = "/tmp/torcs_save/"
+stats_base_path = os.getcwd() + "/trained_models/"
 
 #Model loading / restoring
 ### Pay attention to the file
 restore_model = False
-restore_base_path = "/tmp/torcs_save/"
+restore_base_path = os.getcwd() + "/trained_models/"
 restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_full_name = restore_base_path + restore_file_name
 
