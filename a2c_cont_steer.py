@@ -21,7 +21,7 @@ vision, throttle, gear_change = False, False, False
 race_config_path = \
     "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 race_speed = 4.0 # Race speed, mainly for rendered anyway
-rendering = True # Display the Torcs rendered stuff or run in console
+rendering = False # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
     race_config_path=race_config_path, race_speed=race_speed,
@@ -34,7 +34,7 @@ lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 50000
+num_episodes = 1000
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -184,10 +184,10 @@ for i_ep in range(num_episodes):
             rewards = np.hstack(rewards_list)
             mus = np.hstack(mu_list)
             sigmas = np.hstack(sigma_list)
-            
+
             # Stats for plotting
             ep_scores.append( ep_reward)
-            
+
             returns = np.zeros_like(rewards)
             rolling = 0
             for i in reversed(range(len(rewards))):
@@ -213,11 +213,11 @@ for i_ep in range(num_episodes):
                 saver = tf.train.Saver()
                 model_file_name = "torcs_a2c_cont_steer_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 #Corresponding pickle file
-                stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                stats_file_name = "torcs_a2c_cont_steer_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
-                
+
                 #Pickle stats like score and ep
                 if saving_stats:
                     # stats_file_name = "torcs_a2c_cont_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3], i_ep, ep_reward)
