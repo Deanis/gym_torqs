@@ -376,6 +376,9 @@ class TorcsEnv( gym.Env):
                      'img']
             Observation = col.namedtuple('Observaion', names)
 
+            print( raw_obs[names[8]])
+            input()
+
             # Get RGB from observation
             image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[8]])
 

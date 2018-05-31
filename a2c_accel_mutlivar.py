@@ -62,8 +62,6 @@ with tf.variable_scope(actor_scope):
         name="h_1_act", use_bias=False)
     h_2_act = layers.dense(inputs=h_1_act, units=hidden_2, kernel_initializer=xavier_initializer(), \
         name="h_2_act", use_bias=False)
-    h_3_act = layers.dense(inputs=h_2_act, units=hidden_3, kernel_initializer=xavier_initializer(), \
-        name="h_3_act", use_bias=False)
 
     mu_out = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
         activation=tf.nn.tanh, name="mu_out", use_bias=False)
@@ -71,20 +69,20 @@ with tf.variable_scope(actor_scope):
         activation=tf.nn.softplus, name="sigma_out", use_bias=False)
 
     # Accel
-    mu_out_accel = layers.dense(inputs=h_3_act, units=1, kernel_initializer=xavier_initializer(), \
+    mu_out_accel = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
         activation=tf.nn.tanh, name="mu_out_accel", use_bias=False)
-    sigma_out_accel = layers.dense(inputs=h_3_act, units=1, kernel_initializer=xavier_initializer(), \
+    sigma_out_accel = layers.dense(inputs=h_2_act, units=1, kernel_initializer=xavier_initializer(), \
         activation=tf.nn.softplus, name="sigma_out_accel", use_bias=False)
 
     normal_dist = tf.distributions.Normal(loc=mu_out, scale=sigma_out)
     act_out = tf.reshape(normal_dist.sample(1), shape=[-1,1])
     # act_out = tf.clip_by_value(act_out, env.action_space.low, env.action_space.high)
-    act_out = tf.clip_by_value(act_out, -1.0, 1.0)
+    act_out = tf.clip_by_value(act_out, -.75, .75)
 
     normal_dist_accel = tf.distributions.Normal(loc=mu_out_accel, scale=sigma_out_accel)
     act_out_accel = tf.reshape(normal_dist_accel.sample(1), shape=[-1,1])
     # act_out_accel = tf.clip_by_value(act_out_accel, env.action_space.low, env.action_space.high)
-    act_out_accel = tf.clip_by_value(act_out_accel, -1.0, 1.0)
+    act_out_accel = tf.clip_by_value(act_out_accel, -.75, .75)
 
 critic_scope = "Critic"
 with tf.variable_scope(critic_scope):
@@ -95,14 +93,7 @@ with tf.variable_scope(critic_scope):
     v_out = layers.dense(inputs=h_2_cri, units=1, activation=None, kernel_initializer=xavier_initializer(), \
         name="v_out", use_bias=False)
 
-    #Accel
-    h_3_cri = layers.dense(inputs=h_2_cri, units=hidden_3, kernel_initializer=xavier_initializer(), \
-        name="h_3_cri", use_bias=False)
-    v_out_accel = layers.dense(inputs=h_3_cri, units=1, activation=None, kernel_initializer=xavier_initializer(), \
-        name="v_out_accel", use_bias=False)
-
 logprobs = normal_dist.log_prob(actions_)
-logprobs_accel = normal_dist_accel.log_prob(actions_accel_)
 
 # for more experiences, add entropy term to loss
 entropy = normal_dist.entropy()

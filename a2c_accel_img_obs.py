@@ -19,7 +19,7 @@ from gym_torcs_wrpd_cont import TorcsEnv
 from a2c_agent import A2C_Agent
 
 ###### Torqs Env parameters
-vision, throttle, gear_change = False, True, False
+vision, throttle, gear_change = True, True, False
 race_config_path = \
 "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 race_speed = 8.0 # Race speed, mainly for rendered anyway
@@ -106,7 +106,7 @@ logprobs_accel = normal_dist_accel.log_prob(actions_accel_)
 
 # for more experiences, add entropy term to loss
 entropy = normal_dist.entropy()
-advantages = returns_ - v_out
+advantages = returns_ - v_out_accel
 # Accel
 entropy_accel = normal_dist_accel.entropy()
 advantages_accel = returns_ - v_out_accel

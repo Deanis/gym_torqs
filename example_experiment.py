@@ -4,7 +4,7 @@ from sample_agent import Agent
 import numpy as np
 
 vision = True
-episode_count = 10
+episode_count = 1
 max_steps = 50
 reward = 0
 done = False
