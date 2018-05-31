@@ -30,15 +30,15 @@ race_config_path=race_config_path, race_speed=race_speed,
 rendering=rendering)
 
 # A2C hyperparameters
-hidden_1 = 100
-hidden_2 = 100
+hidden_1 = 128
+hidden_2 = 128
 # Accel upgrade
-hidden_3 = 50
+hidden_3 = 128
 lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 50000
+num_episodes = 2000
 episode = 0
 
 #### REVIEW:Make it automatic later

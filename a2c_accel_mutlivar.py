@@ -98,10 +98,6 @@ logprobs = normal_dist.log_prob(actions_)
 # for more experiences, add entropy term to loss
 entropy = normal_dist.entropy()
 advantages = returns_ - v_out
-# Accel
-entropy_accel = normal_dist_accel.entropy()
-advantages_accel = returns_ - v_out_accel
-
 
 # Define Policy Loss and Value loss
 policy_loss = tf.reduce_mean(-logprobs * advantages - 0.01*entropy)
@@ -113,18 +109,6 @@ optimizer_value = tf.train.AdamOptimizer(learning_rate=lr_critic)
 train_policy = optimizer_policy.minimize(policy_loss, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Actor"))
 train_value = optimizer_value.minimize(value_loss, \
-    var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Critic"))
-
-# Accel
-policy_loss_accel = tf.reduce_mean(-logprobs_accel * advantages_accel - 0.01*entropy_accel)
-value_loss_accel = tf.reduce_mean(tf.square(returns_ - v_out_accel))
-
-optimizer_policy_accel = tf.train.AdamOptimizer(learning_rate=lr_actor)
-optimizer_value_accel = tf.train.AdamOptimizer(learning_rate=lr_critic)
-
-train_policy_accel = optimizer_policy_accel.minimize(policy_loss_accel, \
-    var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Actor"))
-train_value_accel = optimizer_value.minimize(value_loss_accel, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Critic"))
 
 # Configuration
@@ -149,7 +133,7 @@ stats_base_path = os.getcwd() + "/trained_models/accel/"
 #Model loading / restoring
 restore_model = False
 # restore_base_path = "/tmp/torcs_save/"
-restore_base_path = os.getcwd() + "/trained_models/accel"
+restore_base_path = os.getcwd() + "/trained_models/accel/"
 # restore_file_name = "torcs_a2c_cont_steer_2018-05-20 22:50:16.601@ep_99_scored_64984.tfckpt"
 restore_file_name = "fgile.tfckpt"
 
@@ -173,11 +157,6 @@ for i_ep in range(num_episodes):
     rewards_list = []
     mu_list = []
     sigma_list = []
-
-    # Accel implement
-    mu_list_accel = []
-    sigma_list_accel = []
-    actions_list_accel = []
 
     ep_reward = 0
     ep_rewards = []
