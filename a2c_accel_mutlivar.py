@@ -16,14 +16,12 @@ import pickle
 
 from gym_torcs_wrpd_cont import TorcsEnv
 
-from a2c_agent import A2C_Agent
-
 ###### Torqs Env parameters
 vision, throttle, gear_change = False, True, False
 race_config_path = \
 "/home/z3r0/random/rl/gym_torqs/raceconfig/agent_practice.xml"
 race_speed = 8.0 # Race speed, mainly for rendered anyway
-rendering = True # Display the Torcs rendered stuff or run in console
+rendering = False # Display the Torcs rendered stuff or run in console
 
 env = TorcsEnv( vision=vision, throttle=throttle, gear_change=gear_change,
 race_config_path=race_config_path, race_speed=race_speed,
@@ -32,13 +30,11 @@ rendering=rendering)
 # A2C hyperparameters
 hidden_1 = 100
 hidden_2 = 100
-# Accel upgrade
-hidden_3 = 50
 lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 50000
+num_episodes = 3000
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -110,7 +106,7 @@ train_policy = optimizer_policy.minimize(policy_loss, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Actor"))
 train_value = optimizer_value.minimize(value_loss, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Critic"))
-
+    
 # Configuration
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
@@ -124,7 +120,7 @@ sess.run(init)
 
 #Model saving parameter
 save_base_path = os.getcwd() + "/trained_models/accel/"
-save_every_how_many_ep = 1
+save_every_how_many_ep = 100
 
 #Stat save
 saving_stats = True
@@ -209,21 +205,12 @@ for i_ep in range(num_episodes):
         mu_list.append(mu.reshape(-1,))
         sigma_list.append(sigma.reshape(-1,))
 
-        # Accel implement
-        actions_list_accel.append(action_accel[0])
-        mu_list_accel.append(mu_accel.reshape(-1,))
-        sigma_list_accel.append(sigma_accel.reshape(-1,))
-
         if done:
             states = np.vstack(states_list)
             actions = np.vstack(actions_list)
             rewards = np.hstack(rewards_list)
             mus = np.hstack(mu_list)
             sigmas = np.hstack(sigma_list)
-            # Accel impl
-            actions_accel = np.vstack(actions_list_accel)
-            mus_accel = np.hstack(mu_list_accel)
-            sigmas_accel = np.hstack(sigma_list_accel)
 
             # Stats for plotting
             ep_scores.append( ep_reward)
@@ -243,33 +230,19 @@ for i_ep in range(num_episodes):
             sess.run(train_value, feed_dict=feed_dict)
             sess.run(train_policy, feed_dict=feed_dict)
 
-            feed_dict_accel = {states_: states,
-                actions_accel_: actions_accel,
-                returns_: returns.reshape(-1, 1)}
-
-            sess.run(train_value_accel, feed_dict=feed_dict_accel)
-            sess.run(train_policy_accel, feed_dict=feed_dict_accel)
-
             print("\nEpisode : %s," % (i_ep) + \
                 "\nMean mu : %.5f, Min mu : %.5f, Max mu : %.5f, Median mu : %.5f" % \
                 (np.nanmean(mus), np.min(mus), np.max(mus), np.median(mus)) + \
                 "\nMean sigma : %.5f, Min sigma : %.5f, Max sigma : %.5f, Median sigma : %.5f" % \
-                (np.nanmean(sigmas), np.min(sigmas), np.max(sigmas), np.median(sigmas)))
-
-            #Accel impl
-            print("\nAccel related stats : ," + \
-                "\nMean mu : %.5f, Min mu : %.5f, Max mu : %.5f, Median mu : %.5f" % \
-                (np.nanmean(mus_accel), np.min(mus_accel), np.max(mus_accel), np.median(mus_accel)) + \
-                "\nMean sigma : %.5f, Min sigma : %.5f, Max sigma : %.5f, Median sigma : %.5f" % \
-                (np.nanmean(sigmas_accel), np.min(sigmas_accel), np.max(sigmas_accel), np.median(sigmas_accel)) + \
+                (np.nanmean(sigmas), np.min(sigmas), np.max(sigmas), np.median(sigmas)) + \
                 "\nScores : %.4f, Max reward : %.4f, Min reward : %.4f" % (ep_reward, np.max(rewards), np.min(rewards)))
 
             #Saving trained model
             if( i_ep % save_every_how_many_ep == 0  and i_ep > 0) or i_ep+1 == num_episodes:
                 saver = tf.train.Saver()
-                model_file_name = "torcs_a2c_accel_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                model_file_name = "torcs_a2c_accel_multvar_{}@ep_{}_scored_{:.0f}.tfckpt".format( datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 #Corresponding pickle file
-                stats_file_name = "torcs_a2c_accel_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')[:-3], i_ep, ep_reward)
+                stats_file_name = "torcs_a2c_accel_multvar_{}@ep_{}_scored_{:.0f}.pickle".format( datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')[:-3], i_ep, ep_reward)
                 # print( model_file_name)
                 save_path = saver.save( sess, save_base_path + model_file_name)
                 print("Model saved in path: %s" % save_path)
