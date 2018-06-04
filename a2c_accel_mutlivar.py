@@ -28,13 +28,13 @@ race_config_path=race_config_path, race_speed=race_speed,
 rendering=rendering)
 
 # A2C hyperparameters
-hidden_1 = 100
-hidden_2 = 100
+hidden_1 = 300
+hidden_2 = 600
 lr_actor = 1e-3
 lr_critic = 1e-2
 gamma_ = 0.95
 frame = 0
-num_episodes = 3000
+num_episodes = 5000
 episode = 0
 
 #### REVIEW:Make it automatic later
@@ -106,7 +106,7 @@ train_policy = optimizer_policy.minimize(policy_loss, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Actor"))
 train_value = optimizer_value.minimize(value_loss, \
     var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "Critic"))
-    
+
 # Configuration
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
