@@ -43,183 +43,190 @@ version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 static void *mainMenu;
 
 /* State Automaton Init */
-void
-ReStateInit(void *prevMenu)
-{
+void ReStateInit(void *prevMenu) {
 	mainMenu = prevMenu;
 }
 
-
 /* State Automaton Management         */
 /* Called when a race menu is entered */
-void
-ReStateManage(void)
-{
+void ReStateManage(void) {
 	int mode = RM_SYNC | RM_NEXT_STEP;
 
 	do {
 		switch (ReInfo->_reState) {
 			case RE_STATE_CONFIG:
-			//				printf("RE_STATE_CONFIG\n");
-			if (getTextOnly()==false)
-			{
-				GfOut("RaceEngine: state = RE_STATE_CONFIG\n");
-				/* Display the race specific menu */
-				mode = ReRacemanMenu();
-				if (mode & RM_NEXT_STEP) {
-					ReInfo->_reState = RE_STATE_EVENT_INIT;
-				}
-			}
-			// GIUSE - VISION HERE!!
-			else if (getVision())
-			{
-				//					GfOut("RaceEngine: state = RE_STATE_CONFIG\n");
-				/* Display the race specific menu */
-				//					mode =
-				ReRacemanMenu();
-				//					if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_EVENT_INIT;
-				//					}
-			}
-			else
-			{
-				ReInfo->_reState = RE_STATE_EVENT_INIT;
-				ReRacemanMenu();
-			}
-			break;
-
-			case RE_STATE_EVENT_INIT:
-			//				printf("RE_STATE_EVENT_INIT\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_EVENT_INIT\n");
-			/* Load the event description (track and drivers list) */
-			mode = ReRaceEventInit();
-			if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_PRE_RACE;
-			}
-			break;
-
-			case RE_STATE_PRE_RACE:
-			//				printf("RE_STATE_PRE_RACE\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_PRE_RACE\n");
-			mode = RePreRace();
-			if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_RACE_START;
-			}
-			break;
-
-			case RE_STATE_RACE_START:
-			//				printf("RE_STATE_RACE_START\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_RACE_START\n");
-			mode = ReRaceStart();
-			if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_RACE;
-			}
-			break;
-
-			case RE_STATE_RACE:
-			//				printf("RE_STATE_RACE\n");
-			mode = ReUpdate();
-			if (ReInfo->s->_raceState == RM_RACE_ENDED) {
-				/* race finished */
-				ReInfo->_reState = RE_STATE_RACE_END;
-			} else if (mode & RM_END_RACE) {
-				/* interrupt by player */
-				ReInfo->_reState = RE_STATE_RACE_STOP;
-			}
-			break;
-
-			case RE_STATE_RACE_STOP:
-			//				printf("RE_STATE_RACE_STOP\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_RACE_STOP\n");
-			/* Interrupted by player */
-			mode = ReRaceStop();
-			if (mode & RM_NEXT_STEP) {
-				if (RESTART==1)
+				//				printf("RE_STATE_CONFIG\n");
+				if (getTextOnly()==false)
 				{
-					RESTART=0;
-					ReRaceCleanup();
-					ReInfo->_reState = RE_STATE_PRE_RACE;
-					if (getTextOnly()==false)
-					GfuiScreenActivate(ReInfo->_reGameScreen);
-					// GIUSE - VISION HERE!!
-					else if (getVision())
-					GfuiScreenActivate(ReInfo->_reGameScreen);
+					GfOut("RaceEngine: state = RE_STATE_CONFIG\n");
+					/* Display the race specific menu */
+					mode = ReRacemanMenu();
+					if (mode & RM_NEXT_STEP) {
+						ReInfo->_reState = RE_STATE_EVENT_INIT;
+					}
+				}
+				// GIUSE - VISION HERE!!
+				else if (getVision())
+				{
+					//					GfOut("RaceEngine: state = RE_STATE_CONFIG\n");
+					/* Display the race specific menu */
+					//					mode =
+					ReRacemanMenu();
+					//					if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_EVENT_INIT;
+					//					}
 				}
 				else
 				{
-					ReInfo->_reState = RE_STATE_RACE_END;
+					ReInfo->_reState = RE_STATE_EVENT_INIT;
+					ReRacemanMenu();
 				}
-			}
-			break;
+				break;
 
-			case RE_STATE_RACE_END:
-			//				printf("RE_STATE_RACE_END\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
-			mode = ReRaceEnd();
-			if(mode == RE_STATE_EXIT && getTextOnly())
-			{
-				ReInfo->_reState=RE_STATE_EXIT;
-			}
-			else
-			{
-
+			case RE_STATE_EVENT_INIT:
+				//				printf("RE_STATE_EVENT_INIT\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_EVENT_INIT\n");
+				/* Load the event description (track and drivers list) */
+				mode = ReRaceEventInit();
 				if (mode & RM_NEXT_STEP) {
-					ReInfo->_reState = RE_STATE_POST_RACE;
-				} else if (mode & RM_NEXT_RACE) {
+					ReInfo->_reState = RE_STATE_PRE_RACE;
+				}
+				break;
+
+			case RE_STATE_PRE_RACE:
+				//				printf("RE_STATE_PRE_RACE\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_PRE_RACE\n");
+				mode = RePreRace();
+				if (mode & RM_NEXT_STEP) {
 					ReInfo->_reState = RE_STATE_RACE_START;
 				}
-			}
-			break;
+				break;
+
+			case RE_STATE_RACE_START:
+				//				printf("RE_STATE_RACE_START\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_RACE_START\n");
+				mode = ReRaceStart();
+				if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_RACE;
+				}
+				break;
+
+			case RE_STATE_RACE:
+				//				printf("RE_STATE_RACE\n");
+				mode = ReUpdate();
+				// GfOut( mode);
+				if (ReInfo->s->_raceState == RM_RACE_ENDED) {
+					/* race finished */
+					ReInfo->_reState = RE_STATE_RACE_END;
+				} else if (mode & RM_END_RACE) {
+					/* interrupt by player */
+					ReInfo->_reState = RE_STATE_RACE_STOP;
+				}
+				break;
+
+			case RE_STATE_RACE_STOP:
+				//				printf("RE_STATE_RACE_STOP\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_RACE_STOP\n");
+				/* Interrupted by player */
+				mode = ReRaceStop();
+				if (mode & RM_NEXT_STEP) {
+					if (RESTART==1)
+					{
+						RESTART=0;
+						ReRaceCleanup();
+						ReInfo->_reState = RE_STATE_PRE_RACE;
+						if (getTextOnly()==false)
+							GfuiScreenActivate(ReInfo->_reGameScreen);
+						// GIUSE - VISION HERE!!
+						else if (getVision())
+							GfuiScreenActivate(ReInfo->_reGameScreen);
+					}
+					else
+					{
+						ReInfo->_reState = RE_STATE_RACE_END;
+					}
+				}
+				break;
+
+			case RE_STATE_RACE_END:
+				//				printf("RE_STATE_RACE_END\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_RACE_END BOIII\n");
+				// mode = ReRaceEnd();
+				mode = ReRaceEventInit();
+				if(mode == RE_STATE_EXIT)
+				{
+					// TODO: Circumventing Race End after Laps
+					// End only from the Python controller ( episode number)
+					// Not just if race ends
+
+					// Original
+					ReInfo->_reState=RE_STATE_EXIT;
+					// End Original
+					// GfOut( "RaceEngine: Reached the restart point\n");
+					// ReRaceCleanup();
+					// ReInfo->_reState = RE_STATE_PRE_RACE;
+				}
+				else
+				{
+					if (mode & RM_NEXT_STEP) {
+						ReRaceCleanup();
+						ReInfo->_reState = RE_STATE_PRE_RACE;
+						// ReInfo->_reState = RE_STATE_POST_RACE;
+					} else if (mode & RM_NEXT_RACE) {
+						ReInfo->_reState = RE_STATE_RACE_START;
+					}
+				}
+				break;
 
 			case RE_STATE_POST_RACE:
-			//				printf("RE_STATE_POST_RACE\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
-			mode = RePostRace();
-			if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_EVENT_SHUTDOWN;
-			} else if (mode & RM_NEXT_RACE) {
-				ReInfo->_reState = RE_STATE_PRE_RACE;
-			}
-			break;
+				//				printf("RE_STATE_POST_RACE\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
+				mode = RePostRace();
+				if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_EVENT_SHUTDOWN;
+				} else if (mode & RM_NEXT_RACE) {
+					ReInfo->_reState = RE_STATE_PRE_RACE;
+				}
+				break;
 
 			case RE_STATE_EVENT_SHUTDOWN:
-			//				printf("RE_STATE_EVENT_SHUTDOWN\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_EVENT_SHUTDOWN\n");
-			mode = ReEventShutdown();
-			if (mode & RM_NEXT_STEP) {
-				ReInfo->_reState = RE_STATE_SHUTDOWN;
-			} else if (mode & RM_NEXT_RACE) {
-				ReInfo->_reState = RE_STATE_EVENT_INIT;
-			}
-			break;
+				//				printf("RE_STATE_EVENT_SHUTDOWN\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_EVENT_SHUTDOWN\n");
+				mode = ReEventShutdown();
+				if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_SHUTDOWN;
+				} else if (mode & RM_NEXT_RACE) {
+					ReInfo->_reState = RE_STATE_EVENT_INIT;
+				}
+				break;
 
 			case RE_STATE_SHUTDOWN:
-			//				printf("RE_STATE_SHUTDOWN\n");
-			case RE_STATE_ERROR:
-			printf("RE_STATE_ERROR\n");
-			if (getTextOnly()==false)
-			GfOut("RaceEngine: state = RE_STATE_SHUTDOWN\n");
-			/* Back to race menu */
-			ReInfo->_reState = RE_STATE_CONFIG;
-			mode = RM_SYNC;
-			break;
+				//				printf("RE_STATE_SHUTDOWN\n");
+				case RE_STATE_ERROR:
+				printf("RE_STATE_ERROR\n");
+				if (getTextOnly()==false)
+				GfOut("RaceEngine: state = RE_STATE_SHUTDOWN\n");
+				/* Back to race menu */
+				ReInfo->_reState = RE_STATE_CONFIG;
+				mode = RM_SYNC;
+				break;
 
 			case RE_STATE_EXIT:
-			//				printf("RE_STATE_EXIT\n");
-			if (getTextOnly()==false)
-			GfScrShutdown();
-			// GIUSE - VISION HERE!!
-			else if (getVision())
-			GfScrShutdown();
-			exit (0);		/* brutal isn't it ? */
-			break;
+				//				printf("RE_STATE_EXIT\n");
+				if (getTextOnly()==false)
+					GfScrShutdown();
+				// GIUSE - VISION HERE!!
+				else if (getVision())
+					GfScrShutdown();
+				exit (0);		/* brutal isn't it ? */
+				break;
 		}
 
 
@@ -237,9 +244,7 @@ ReStateManage(void)
 }
 
 /* Change and Execute a New State  */
-void
-ReStateApply(void *vstate)
-{
+void ReStateApply(void *vstate) {
 
 	long state = (long)vstate;
 

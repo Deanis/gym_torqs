@@ -1,10 +1,10 @@
 /***************************************************************************
-                    tgf.h -- Interface file for The Gaming Framework                                    
-                             -------------------                                         
+                    tgf.h -- Interface file for The Gaming Framework
+                             -------------------
     created              : Fri Aug 13 22:32:14 CEST 1999
-    copyright            : (C) 1999 by Eric Espie                         
-    email                : torcs@free.fr   
-    version              : $Id: tgf.h,v 1.41.2.2 2008/11/09 17:50:22 berniw Exp $                                  
+    copyright            : (C) 1999 by Eric Espie
+    email                : torcs@free.fr
+    version              : $Id: tgf.h,v 1.41.2.2 2008/11/09 17:50:22 berniw Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/** @file   
+/** @file
     	The Gaming Framework API.
     @author	<a href=mailto:torcs@free.fr>Eric Espie</a>
     @version	$Id: tgf.h,v 1.41.2.2 2008/11/09 17:50:22 berniw Exp $
@@ -50,6 +50,9 @@ typedef float tdble;
 
 extern void setTextOnly(bool value);
 extern bool getTextOnly ();
+
+extern void setRecordHuman(bool value);
+extern bool getRecordHuman();
 
 extern void GfInit(void);
 
@@ -143,7 +146,7 @@ typedef struct {
 /** Dynamic point structure.
     @ingroup definitions
 */
-typedef struct 
+typedef struct
 {
     tPosd pos; /**< position */
     tPosd vel; /**< velocity */
@@ -178,7 +181,7 @@ extern char * _tgf_win_strdup(const char * str);
  * Interface For Dynamic Modules *
  *********************************/
 
-/** initialisation of the function table 
+/** initialisation of the function table
     @see	ModInfo
 */
 typedef int (*tfModPrivInit)(int index, void *);
@@ -230,10 +233,10 @@ extern int GfModFreeInfoList(tModList **modlist);
  * Directory management *
  ************************/
 
-/** List of (DLL) files for a Directory 
+/** List of (DLL) files for a Directory
     @see	GfDirGetList
 */
-typedef struct FList 
+typedef struct FList
 {
     struct FList	*next;		/**< Next entry */
     struct FList	*prev;		/**< Previous entry */
@@ -329,7 +332,7 @@ extern int GfParmListSeekNext(void *handle, char *path);
 extern char *GfParmListGetCurEltName(void *handle, char *path);
 extern int GfParmListClean(void *handle, char *path);
 
-/******************* 
+/*******************
  * Trace Interface *
  *******************/
 
@@ -379,7 +382,7 @@ GfOut(char *fmt, ...)
 
 #endif /* _DEBUG || DEBUG */
 
-/******************* 
+/*******************
  * Time  Interface *
  *******************/
 extern double GfTimeClock(void);
@@ -388,7 +391,7 @@ extern char *GfGetTimeStr(void);
 /* Mean values */
 #define GF_MEAN_MAX_VAL	5
 
-typedef struct 
+typedef struct
 {
     int		curNum;
     tdble	val[GF_MEAN_MAX_VAL+1];
@@ -657,5 +660,3 @@ extern double getSpeedMult();
 
 
 #endif /* __TGF__H__ */
-
-

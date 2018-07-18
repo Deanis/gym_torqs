@@ -42,7 +42,17 @@ static int __UDP_LISTEN_PORT__ = 3101;
 static bool __VISION__ = false;
 // GIUSE - SPEEDUP COMPUTATION (default: realtime - faster with positive numbers below one)
 static double __SPEEDMULT__ = 1.0;
+// dosssman
+static bool __RECORD_HUMAN__;
 
+void setRecordHuman(bool value) {
+	__RECORD_HUMAN__ = value;
+}
+
+bool getRecordHuman() {
+	return __RECORD_HUMAN__;
+}
+// End dosssman
 
 void setTextOnly(bool value)
 {

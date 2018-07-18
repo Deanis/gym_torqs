@@ -53,16 +53,13 @@ tModList *ReRaceModList = 0;
 static char buf[1024];
 static char path[1024];
 
-typedef struct
-{
+typedef struct {
 	int index;
 	tModList *curmod;
 } tMainMod;
 
 /* Race Engine Initialization */
-void
-ReInit(void)
-{
+void ReInit(void) {
 	char *dllname;
 	char key[256];
 	tRmMovieCapture *capture;
@@ -114,10 +111,8 @@ ReInit(void)
 	ReInfo->_reGameScreen = ReHookInit();
 }
 
-
 /* Race Engine Exit */
-void ReShutdown(void)
-{
+void ReShutdown(void) {
 	/* Free previous situation */
 	if (ReInfo) {
 		ReInfo->_reTrackItf.trkShutdown();
@@ -138,18 +133,13 @@ void ReShutdown(void)
 	}
 }
 
-
-void
-ReStartNewRace(void * /* dummy */)
-{
+void ReStartNewRace(void * /* dummy */) {
 	ReInitResults();
 	ReStateManage();
 }
 
-
 /* Launch a race manager */
-static void reSelectRaceman(void *params)
-{
+static void reSelectRaceman(void *params) {
 	char *s, *e, *m;
 
 	ReInfo->params = params;
@@ -168,7 +158,7 @@ static void reSelectRaceman(void *params)
 }
 
 //////////////////////////////////////////// by yurong
-void ReGuiWithoutSelect(const char* raceconfig){
+void ReGuiWithoutSelect(const char* raceconfig) {
 
 	ReInfo = (tRmInfo *)calloc(1, sizeof(tRmInfo));
 	ReInfo->s = (tSituation *)calloc(1, sizeof(tSituation));
@@ -230,8 +220,7 @@ void ReGuiWithoutSelect(const char* raceconfig){
 //////////////////////////////////////////// end by yurong
 
 // dosssman
-void ReRunRaceOnConsole(const char* raceconfig)
-{
+void ReRunRaceOnConsole(const char* raceconfig) {
 	ReInfo = (tRmInfo *)calloc(1, sizeof(tRmInfo));
 	ReInfo->s = (tSituation *)calloc(1, sizeof(tSituation));
 	ReInfo->modList = &ReRaceModList;
@@ -278,18 +267,14 @@ void ReRunRaceOnConsole(const char* raceconfig)
 // end dosssman
 
 /* Register a race manager */
-static void
-reRegisterRaceman(tFList *racemanCur)
-{
+static void reRegisterRaceman(tFList *racemanCur) {
 	sprintf(buf, "%sconfig/raceman/%s", GetLocalDir(), racemanCur->name);
 	racemanCur->userData = GfParmReadFile(buf, GFPARM_RMODE_STD);
 	racemanCur->dispName = GfParmGetStr(racemanCur->userData, RM_SECT_HEADER, RM_ATTR_NAME, 0);
 }
 
 /* Sort race managers by priority */
-static void
-reSortRacemanList(tFList **racemanList)
-{
+static void reSortRacemanList(tFList **racemanList) {
 	tFList *head;
 	tFList *cur;
 	tFList *tmp;
@@ -321,10 +306,8 @@ reSortRacemanList(tFList **racemanList)
 	*racemanList = head;
 }
 
-
 /* Load race managers selection menu */
-void ReAddRacemanListButton(void *menuHandle)
-{
+void ReAddRacemanListButton(void *menuHandle) {
 	tFList *racemanList;
 	tFList *racemanCur;
 
@@ -605,9 +588,7 @@ The car are positionned on the starting grid.
 @return	0 Ok
 -1 Error
 */
-int
-ReInitCars(void)
-{
+int ReInitCars(void) {
 	int nCars;
 	int index;
 	int i, j, k;

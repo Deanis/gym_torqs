@@ -40,6 +40,16 @@ version     : $Id: raceengine.cpp,v 1.19 2007/11/06 20:43:32 torcs Exp $
 
 #include <math.h>
 
+// Include sensors data types and string parsers
+#include "sensors.h"
+#include "SimpleParser.h"
+#include "CarControl.h"
+#include "ObstacleSensors.h"
+
+// Utils functions
+static double normRand(double avg,double std);
+// End Utils functions
+
 static char	buf[1024];
 static double	msgDisp;
 static double	bigMsgDisp;
@@ -57,9 +67,7 @@ static void ReRaceRules(tCarElt *car);
 static unsigned char* tmpimg;
 
 /* Compute Pit stop time */
-static void
-ReUpdtPitTime(tCarElt *car)
-{
+static void ReUpdtPitTime(tCarElt *car) {
 	tSituation *s = ReInfo->s;
 	tReCarInfo *info = &(ReInfo->_reCarInfo[car->index]);
 	int i;
@@ -84,9 +92,7 @@ ReUpdtPitTime(tCarElt *car)
 }
 
 /* Return from interactive pit information */
-static void
-ReUpdtPitCmd(void *pvcar)
-{
+static void ReUpdtPitCmd(void *pvcar) {
 	tCarElt *car = (tCarElt*)pvcar;
 
 	ReUpdtPitTime(car);
@@ -94,9 +100,7 @@ ReUpdtPitCmd(void *pvcar)
 	GfuiScreenActivate(ReInfo->_reGameScreen);
 }
 
-static void
-ReRaceMsgUpdate(void)
-{
+static void ReRaceMsgUpdate(void) {
 	if(getTextOnly()==false)
 	{
 		if (ReInfo->_reCurTime > msgDisp) {
@@ -108,23 +112,17 @@ ReRaceMsgUpdate(void)
 	}
 }
 
-static void
-ReRaceMsgSet(char *msg, double life)
-{
+static void ReRaceMsgSet(char *msg, double life) {
 	if(getTextOnly()) return;
 	ReSetRaceMsg(msg);
 	msgDisp = ReInfo->_reCurTime + life;
 }
 
-
-static void
-ReRaceBigMsgSet(char *msg, double life)
-{
+static void ReRaceBigMsgSet(char *msg, double life) {
 	if(getTextOnly()) return;
 	ReSetRaceBigMsg(msg);
 	bigMsgDisp = ReInfo->_reCurTime + life;
 }
-
 
 // GIUSE - TODO: quick hack, find them a place!
 static unsigned char* tmpRGBimg = (unsigned char*)malloc( 3 * GIUSEIMGSIZE * GIUSEIMGSIZE * sizeof(unsigned char) );
@@ -132,9 +130,7 @@ static double* RGBscales = (double*)malloc( 3 * sizeof(double) );
 
 
 // GIUSE - VISION HERE!!!
-static void
-visionUpdate()
-{
+static void visionUpdate() {
 	//  printf("START visionUpdate\n");
 	glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -212,10 +208,8 @@ for (int pixel=0; pixel < 3*GIUSEIMGSIZE*GIUSEIMGSIZE; pixel++)
 
 }
 
+static void ReManage(tCarElt *car) {
 
-static void
-ReManage(tCarElt *car)
-{
 	int i, pitok;
 	tTrackSeg *sseg;
 	tdble wseg;
@@ -230,7 +224,6 @@ ReManage(tCarElt *car)
 		car->vision = ReInfo->vision;
 		visionUpdate();
 	}
-
 
 	if (car->_speed_x > car->_topSpeed) {
 		car->_topSpeed = car->_speed_x;
@@ -456,23 +449,22 @@ ReManage(tCarElt *car)
 		} else {
 			info->lapFlag--;
 		}
+		}
+		if ((info->prevTrkPos.seg->raceInfo & TR_START) && (car->_trkPos.seg->raceInfo & TR_LAST)) {
+			/* going backward through the start line */
+			info->lapFlag++;
+		}
 	}
-	if ((info->prevTrkPos.seg->raceInfo & TR_START) && (car->_trkPos.seg->raceInfo & TR_LAST)) {
-		/* going backward through the start line */
-		info->lapFlag++;
-	}
-}
-ReRaceRules(car);
-info->prevTrkPos = car->_trkPos;
-car->_curLapTime = s->currentTime - info->sTime;
-car->_distFromStartLine = car->_trkPos.seg->lgfromstart +
-(car->_trkPos.seg->type == TR_STR ? car->_trkPos.toStart : car->_trkPos.toStart * car->_trkPos.seg->radius);
-car->_distRaced = (car->_laps - 1) * ReInfo->track->length + car->_distFromStartLine;
+
+	ReRaceRules(car);
+	info->prevTrkPos = car->_trkPos;
+	car->_curLapTime = s->currentTime - info->sTime;
+	car->_distFromStartLine = car->_trkPos.seg->lgfromstart +
+	(car->_trkPos.seg->type == TR_STR ? car->_trkPos.toStart : car->_trkPos.toStart * car->_trkPos.seg->radius);
+	car->_distRaced = (car->_laps - 1) * ReInfo->track->length + car->_distFromStartLine;
 }
 
-static void
-ReSortCars(void)
-{
+static void ReSortCars(void) {
 	int		i,j;
 	tCarElt	*car;
 	int		allfinish;
@@ -530,9 +522,7 @@ ReSortCars(void)
 }
 
 /* Compute the race rules and penalties */
-static void
-ReRaceRules(tCarElt *car)
-{
+static void ReRaceRules(tCarElt *car) {
 	tCarPenalty		*penalty;
 	tTrack		*track = ReInfo->track;
 	tRmCarRules		*rules = &(ReInfo->rules[car->index]);
@@ -670,13 +660,160 @@ ReRaceRules(tCarElt *car)
 
 }
 
-
-static void
-ReOneStep(double deltaTimeIncrement)
-{
+static void ReOneStep(double deltaTimeIncrement) {
 	int i;
 	tRobotItf *robot;
 	tSituation *s = ReInfo->s;
+
+	// TODO: Hook for player data collection
+	// dosssman
+	// Trigger evey .02 s ( 50 Hz) for state record
+	// GfOut( "Current time: %.3f\n", s->deltaTime);
+
+	// Intercept human data
+	// GfOut( s->cars);
+
+	// tCarElt **cars = s->cars;
+	tCarElt *car = *(s->cars);
+	tTrack *curTrack = ReInfo->track;
+
+	// Create necessary variables for sensors updates
+	Sensors *trackSens[1];
+	trackSens[0] = new Sensors(car, 19);
+
+	// ObstacleSensors *oppSens[1];
+	// oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
+
+	Sensors *focusSens[1];//ML
+	focusSens[0] = new Sensors(car, 5);//ML
+	//
+	tdble prevDist[1] , distRaced[1];;
+
+	// GfOut( "Car index: %d;\n", car->index);
+
+	// DEBUG
+	// GfOut( "Found %d players\n;", s->raceInfo.ncars);
+
+	// {
+	// struct timeval timeVal;
+	// fd_set readSet;
+
+	// computing distance to middle
+	float dist_to_middle = 2*car->_trkPos.toMiddle/(car->_trkPos.seg->width);
+	// computing the car angle wrt the track axis
+	float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI(angle); // normalize the angle between -PI and + PI
+
+	// //Update focus sensors' angle
+	for (int i = 0; i < 5; ++i) {
+		focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
+	}
+
+	// update the value of track sensors only as long as the car is inside the track
+	float trackSensorOut[19];
+	float focusSensorOut[5];//ML
+
+	// if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
+	// 	trackSens[0]->sensors_update();
+	// 	for (int i = 0; i < 19; ++i)
+	// 	{
+	// 		trackSensorOut[i] = trackSens[0]->getSensorOut(i);
+	// 		if (getNoisy())
+	// 		trackSensorOut[i] *= normRand(1,.1);
+	// 	}
+	// 	focusSens[0]->sensors_update();//ML
+	// 	if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
+	// 	&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
+	// 	{//ML
+	// 		for (int i = 0; i < 5; ++i)
+	// 		{
+	// 			focusSensorOut[i] = focusSens[0]->getSensorOut(i);
+	// 			if (getNoisy())
+	// 			focusSensorOut[i] *= normRand(1, .01);
+	// 		}
+	// 		car->_focusCD = car->_curLapTime + car->_curTime + 1.0;//ML Add cooldown [seconds]
+	// 	}//ML
+	// 	else//ML
+	// 	{//ML
+	// 		for (int i = 0; i < 5; ++i)//ML
+	// 		focusSensorOut[i] = -1;//ML During cooldown send invalid focus reading
+	// 	}//ML
+	// }
+	// else {
+	// 	for (int i = 0; i < 19; ++i)
+	// 	{
+	// 		trackSensorOut[i] = -1;
+	// 	}
+	// 	for (int i = 0; i < 5; ++i)
+	// 	{
+	// 		focusSensorOut[i] = -1;
+	// 	}
+	// }
+
+	// update the value of opponent sensors
+	// float oppSensorOut[36];
+	// oppSens[0]->sensors_update(s);
+	// for (int i = 0; i < 36; ++i) {
+	// 	oppSensorOut[i] = oppSens[0]->getObstacleSensorOut(i);
+	// 	if (getNoisy())
+	// 	oppSensorOut[i] *= normRand(1, .02);
+	// }
+
+	float wheelSpinVel[4];
+	for (int i=0; i<4; ++i) {
+		wheelSpinVel[i] = car->_wheelSpinVel(i);
+	}
+
+	if (prevDist[0]<0) {
+		prevDist[0] = car->race.distFromStartLine;
+	}
+
+	float curDistRaced = car->race.distFromStartLine - prevDist[0];
+	prevDist[0] = car->race.distFromStartLine;
+	if (curDistRaced>100) {
+		curDistRaced -= curTrack->length;
+	}
+	if (curDistRaced<-100) {
+		curDistRaced += curTrack->length;
+	}
+
+	distRaced[0] += curDistRaced;
+
+	float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
+
+	//    std::cerr << "totraced: " << totdist << std::endl;
+
+	/**********************************************************************
+	****************** Building state string *****************************
+	**********************************************************************/
+
+	string stateString;
+
+	stateString =  SimpleParser::stringify("angle", angle);
+	stateString += SimpleParser::stringify("curLapTime", float(car->_curLapTime));
+	stateString += SimpleParser::stringify("damage",        ( getDamageLimit() ? car->_dammage : car->_fakeDammage ) );
+	stateString += SimpleParser::stringify("distFromStart", car->race.distFromStartLine);
+	stateString += SimpleParser::stringify("totalDistFromStart", totdist);
+	stateString += SimpleParser::stringify("distRaced", distRaced[0]);
+	stateString += SimpleParser::stringify("fuel", car->_fuel);
+	stateString += SimpleParser::stringify("gear", car->_gear);
+	stateString += SimpleParser::stringify("lastLapTime", float(car->_lastLapTime));
+	// stateString += SimpleParser::stringify("opponents", oppSensorOut, 36);
+	stateString += SimpleParser::stringify("racePos", car->race.pos);
+	stateString += SimpleParser::stringify("rpm", car->_enginerpm*10);
+	stateString += SimpleParser::stringify("speedX", float(car->_speed_x  * 3.6));
+	stateString += SimpleParser::stringify("speedY", float(car->_speed_y  * 3.6));
+	stateString += SimpleParser::stringify("speedZ", float(car->_speed_z  * 3.6));
+	stateString += SimpleParser::stringify("track", trackSensorOut, 19);
+	stateString += SimpleParser::stringify("trackPos", dist_to_middle);
+	stateString += SimpleParser::stringify("wheelSpinVel", wheelSpinVel, 4);
+	stateString += SimpleParser::stringify("z", car->_pos_Z  - RtTrackHeightL(&(car->_trkPos)));
+	stateString += SimpleParser::stringify("focus", focusSensorOut, 5);//ML
+
+	// printf( stateString.c_str());
+	// printf( "\n");
+
+	// End interception of human player data
 
 	// following code are from TORCS FAQ about the reset by robots
 	/*
@@ -688,92 +825,89 @@ ReOneStep(double deltaTimeIncrement)
 	{
 	restartRequested ~ true;
 	s->cars[i]->ctrl.askRestart = false;
-}
-if(restartRequested)
-{
-ReraceCleanup();
-ReInfo->_reState = RE_STATE_PRE_RACE;
-GfuiScreenActivate(ReInfo->_reGameScreen);
-}
-}
-*/
-//	printf ("ReOneStep\n");
-
-
-/* GIUSE - skip the message and start the race immediately
-
-if (ReInfo->s->currentTime < -1.0) {
-ReInfo->s->currentTime = -1.0;
-ReInfo->_reLastTime = -1.0;
-
-
-if (getTextOnly() == false)
-{
-if (floor(s->currentTime) == -2.0) {
-ReRaceBigMsgSet("Ready", 1.0);
-} else if (floor(s->currentTime) == -1.0) {
-ReRaceBigMsgSet("Set", 1.0);
-} else if (floor(s->currentTime) == 0.0) {
-ReRaceBigMsgSet("Go", 1.0);
-}
-}
-*/
-
-// GIUSE - FASTER THEN RUNTIME ACTIVATION FOR NON-TEXTUAL COMPUTATION
-ReInfo->_reCurTime += deltaTimeIncrement * ReInfo->_reTimeMult * getSpeedMult();
-//	ReInfo->_reCurTime += deltaTimeIncrement * ReInfo->_reTimeMult; /* "Real" time */
-s->currentTime += deltaTimeIncrement; /* Simulated time */
-
-// GIUSE
-//	if (s->currentTime < 0) {
-if (s->currentTime <= 0) {
-	/* no simu yet */
-	ReInfo->s->_raceState = RM_RACE_PRESTART;
-} else if (ReInfo->s->_raceState == RM_RACE_PRESTART) {
-	ReInfo->s->_raceState = RM_RACE_RUNNING;
-	s->currentTime = 0.0; /* resynchronize */
-	ReInfo->_reLastTime = 0.0;
-}
-
-START_PROFILE("rbDrive*");
-if ((s->currentTime - ReInfo->_reLastTime) >= RCM_MAX_DT_ROBOTS) {
-	s->deltaTime = s->currentTime - ReInfo->_reLastTime;
-	for (i = 0; i < s->_ncars; i++) {
-		if ((s->cars[i]->_state & RM_CAR_STATE_NO_SIMU) == 0) {
-			robot = s->cars[i]->robot;
-			robot->rbDrive(robot->index, s->cars[i], s);
-		}
 	}
-	ReInfo->_reLastTime = s->currentTime;
-}
-STOP_PROFILE("rbDrive*");
+	if(restartRequested)
+	{
+	ReraceCleanup();
+	ReInfo->_reState = RE_STATE_PRE_RACE;
+	GfuiScreenActivate(ReInfo->_reGameScreen);
+	}
+	}
+	*/
+	//	printf ("ReOneStep\n");
 
-START_PROFILE("_reSimItf.update*");
-ReInfo->_reSimItf.update(s, deltaTimeIncrement, -1);
-for (i = 0; i < s->_ncars; i++) {
-	ReManage(s->cars[i]);//get image here
-}
-STOP_PROFILE("_reSimItf.update*");
 
-ReRaceMsgUpdate();
-ReSortCars();
+	/* GIUSE - skip the message and start the race immediately
+
+	if (ReInfo->s->currentTime < -1.0) {
+	ReInfo->s->currentTime = -1.0;
+	ReInfo->_reLastTime = -1.0;
+
+	if (getTextOnly() == false)
+	{
+	if (floor(s->currentTime) == -2.0) {
+	ReRaceBigMsgSet("Ready", 1.0);
+	} else if (floor(s->currentTime) == -1.0) {
+	ReRaceBigMsgSet("Set", 1.0);
+	} else if (floor(s->currentTime) == 0.0) {
+	ReRaceBigMsgSet("Go", 1.0);
+	}
+	}
+	*/
+
+	// GIUSE - FASTER THEN RUNTIME ACTIVATION FOR NON-TEXTUAL COMPUTATION
+	ReInfo->_reCurTime += deltaTimeIncrement * ReInfo->_reTimeMult * getSpeedMult();
+	//	ReInfo->_reCurTime += deltaTimeIncrement * ReInfo->_reTimeMult; /* "Real" time */
+	s->currentTime += deltaTimeIncrement; /* Simulated time */
+
+	// GIUSE
+	//	if (s->currentTime < 0) {
+	if (s->currentTime <= 0) {
+		/* no simu yet */
+		ReInfo->s->_raceState = RM_RACE_PRESTART;
+	} else if (ReInfo->s->_raceState == RM_RACE_PRESTART) {
+		ReInfo->s->_raceState = RM_RACE_RUNNING;
+		s->currentTime = 0.0; /* resynchronize */
+		ReInfo->_reLastTime = 0.0;
+	}
+
+	START_PROFILE("rbDrive*");
+	if ((s->currentTime - ReInfo->_reLastTime) >= RCM_MAX_DT_ROBOTS) {
+		s->deltaTime = s->currentTime - ReInfo->_reLastTime;
+		for (i = 0; i < s->_ncars; i++) {
+			if ((s->cars[i]->_state & RM_CAR_STATE_NO_SIMU) == 0) {
+				robot = s->cars[i]->robot;
+				robot->rbDrive(robot->index, s->cars[i], s);
+			}
+		}
+		ReInfo->_reLastTime = s->currentTime;
+	}
+	STOP_PROFILE("rbDrive*");
+
+	START_PROFILE("_reSimItf.update*");
+	ReInfo->_reSimItf.update(s, deltaTimeIncrement, -1);
+	for (i = 0; i < s->_ncars; i++) {
+		ReManage(s->cars[i]);//get image here
+	}
+	STOP_PROFILE("_reSimItf.update*");
+
+	ReRaceMsgUpdate();
+	ReSortCars();
 }
 
-void
-ReStart(void)
-{
+void ReStart(void) {
 	ReInfo->_reRunning = 1;
 	ReInfo->_reCurTime = GfTimeClock() - RCM_MAX_DT_SIMU;
 
 	// fill the vision structure
-	if( getVision() ){
+	if( getVision() ) {
 		ReInfo->vision = (tRmVisionImg*) malloc( sizeof(tRmVisionImg) );
 
 		GfScrGetSize(&ReInfo->vision->sw, &ReInfo->vision->sh, &ReInfo->vision->vw, &ReInfo->vision->vh);
 
 		// GIUSE - debug - fixed image size to try the speed of udp
 		if( GIUSEIMGSIZE > 0 )
-		ReInfo->vision->sw = ReInfo->vision->sh = ReInfo->vision->vw = ReInfo->vision->vh = GIUSEIMGSIZE;
+			ReInfo->vision->sw = ReInfo->vision->sh = ReInfo->vision->vw = ReInfo->vision->vh = GIUSEIMGSIZE;
 
 		ReInfo->vision->imgsize = 3*ReInfo->vision->vw * ReInfo->vision->vh; // for RGB
 		ReInfo->vision->img = (unsigned char*)malloc(ReInfo->vision->imgsize * sizeof(unsigned char));
@@ -790,9 +924,7 @@ ReStart(void)
 	}
 }
 
-void
-ReStop(void)
-{
+void ReStop(void) {
 	ReInfo->_reRunning = 0;
 	if( getVision() ){
 		free(ReInfo->vision->img);
@@ -800,9 +932,8 @@ ReStop(void)
 	}
 }
 
-static void
-reCapture(void)
-{
+static void reCapture(void) {
+	GfOut( "Capturing");
 	unsigned char	*img;
 	int			sw, sh, vw, vh;
 	tRmMovieCapture	*capture = &(ReInfo->movieCapture);
@@ -824,14 +955,16 @@ reCapture(void)
 	free(img);
 }
 
+int ReUpdate(void) {
+	// TODO: Record human data
+	if( getRecordHuman()) {
+		// GfOut( "Update Callled\n");
+		GfOut( "Current time %d;\n", ReInfo->_displayMode);
+	}
 
-int
-ReUpdate(void)
-{
 	double 		t;
 	tRmMovieCapture	*capture;
-	if (getTextOnly()==false)
-	{
+	if (getTextOnly()==false) {
 		START_PROFILE("ReUpdate");
 		ReInfo->_refreshDisplay = 0;
 		switch (ReInfo->_displayMode) {
@@ -850,32 +983,30 @@ ReUpdate(void)
 			break;
 
 			case RM_DISP_MODE_NONE:
-			ReOneStep(RCM_MAX_DT_SIMU);
-			if (ReInfo->_refreshDisplay) {
-				GfuiDisplay();
-			}
-			glutPostRedisplay();	/* Callback -> reDisplay */
-			break;
+				ReOneStep(RCM_MAX_DT_SIMU);
+				if (ReInfo->_refreshDisplay) {
+					GfuiDisplay();
+				}
+				glutPostRedisplay();	/* Callback -> reDisplay */
+				break;
 
 			case RM_DISP_MODE_CAPTURE:
-			capture = &(ReInfo->movieCapture);
-			while ((ReInfo->_reCurTime - capture->lastFrame) < capture->deltaFrame) {
-				ReOneStep(capture->deltaSimu);
-			}
-			capture->lastFrame = ReInfo->_reCurTime;
+				capture = &(ReInfo->movieCapture);
+				while ((ReInfo->_reCurTime - capture->lastFrame) < capture->deltaFrame) {
+					ReOneStep(capture->deltaSimu);
+				}
+				capture->lastFrame = ReInfo->_reCurTime;
 
-			GfuiDisplay();
-			ReInfo->_reGraphicItf.refresh(ReInfo->s);
-			reCapture();
-			glutPostRedisplay();	/* Callback -> reDisplay */
-			break;
-
+				GfuiDisplay();
+				ReInfo->_reGraphicItf.refresh(ReInfo->s);
+				reCapture();
+				glutPostRedisplay();	/* Callback -> reDisplay */
+				break;
 		}
 		STOP_PROFILE("ReUpdate");
 	}
 	// GIUSE - VISION HERE!!
-	else if(getVision())
-	{
+	else if(getVision()) {
 		START_PROFILE("ReUpdate");
 		//  		ReInfo->_refreshDisplay = 0;
 		//		  switch (ReInfo->_displayMode) {
@@ -922,9 +1053,7 @@ ReUpdate(void)
 	return RM_ASYNC;
 }
 
-void
-ReTimeMod (void *vcmd)
-{
+void ReTimeMod (void *vcmd) {
 	long cmd = (long)vcmd;
 
 	switch ((int)cmd) {
@@ -948,3 +1077,21 @@ ReTimeMod (void *vcmd)
 	sprintf(buf, "Time x%.2f", 1.0 / ReInfo->_reTimeMult);
 	ReRaceMsgSet(buf, 5);
 }
+
+// Utils function Impl
+
+double normRand(double avg,double std) {
+  double x1, x2, w, y1, y2;
+
+  do {
+    x1 = 2.0 * rand()/(double(RAND_MAX)) - 1.0;
+    x2 = 2.0 * rand()/(double(RAND_MAX)) - 1.0;
+    w = x1 * x1 + x2 * x2;
+  } while ( w >= 1.0 );
+
+  w = sqrt( (-2.0 * log( w ) ) / w );
+  y1 = x1 * w;
+  y2 = x2 * w;
+  return y1*std + avg;
+}
+// End Utils function Impl

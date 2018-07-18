@@ -2,9 +2,9 @@
 
     file        : racemanmenu.cpp
     created     : Fri Jan  3 22:24:41 CET 2003
-    copyright   : (C) 2003 by Eric Espié                        
-    email       : eric.espie@torcs.org   
-    version     : $Id: racemanmenu.cpp,v 1.5 2004/08/11 17:44:06 torcs Exp $                                  
+    copyright   : (C) 2003 by Eric Espiï¿½
+    email       : eric.espie@torcs.org
+    version     : $Id: racemanmenu.cpp,v 1.5 2004/08/11 17:44:06 torcs Exp $
 
  ***************************************************************************/
 
@@ -17,8 +17,8 @@
  *                                                                         *
  ***************************************************************************/
 
-/** @file   
-    		
+/** @file
+
     @author	<a href=mailto:eric.espie@torcs.org>Eric Espie</a>
     @version	$Id: racemanmenu.cpp,v 1.5 2004/08/11 17:44:06 torcs Exp $
 */
@@ -58,7 +58,7 @@ reConfigBack(void)
     void	*params = ReInfo->params;
 
     /* Go back one step in the conf */
-    GfParmSetNum(params, RM_SECT_CONF, RM_ATTR_CUR_CONF, NULL, 
+    GfParmSetNum(params, RM_SECT_CONF, RM_ATTR_CUR_CONF, NULL,
 		 GfParmGetNum(params, RM_SECT_CONF, RM_ATTR_CUR_CONF, NULL, 1) - 2);
 
     reConfigRunState();
@@ -126,7 +126,7 @@ reConfigRunState(void)
 	GfParmWriteFile(NULL, ReInfo->params, ReInfo->_reName);
 	goto menuback;
     }
-    
+
     sprintf(path, "%s/%d", RM_SECT_CONF, curConf);
     conf = GfParmGetStr(params, path, RM_ATTR_TYPE, 0);
     if (!conf) {
@@ -238,9 +238,7 @@ reLoadMenu(void *prevHandle)
     RmFileSelect((void*)&fs);
 }
 
-int
-ReRacemanMenu(void)
-{
+int ReRacemanMenu(void) {
     char	*str;
     void	*params = ReInfo->params;
 
@@ -248,8 +246,8 @@ ReRacemanMenu(void)
     	ReStartNewRace(NULL);
     else
     {
-		if (racemanMenuHdle) {
-		GfuiScreenRelease(racemanMenuHdle);
+  		if (racemanMenuHdle) {
+  		    GfuiScreenRelease(racemanMenuHdle);
 		}
 		racemanMenuHdle = GfuiScreenCreateEx(NULL,
 						 NULL, (tfuiCallback)NULL,
@@ -312,9 +310,9 @@ ReNewTrackMenu(void)
     if (newTrackMenuHdle) {
 	GfuiScreenRelease(newTrackMenuHdle);
     }
-    newTrackMenuHdle = GfuiScreenCreateEx(NULL, 
-					  NULL, (tfuiCallback)NULL, 
-					  NULL, (tfuiCallback)NULL, 
+    newTrackMenuHdle = GfuiScreenCreateEx(NULL,
+					  NULL, (tfuiCallback)NULL,
+					  NULL, (tfuiCallback)NULL,
 					  1);
 
     str = GfParmGetStr(params, RM_SECT_HEADER, RM_ATTR_BGIMG, 0);
@@ -342,8 +340,8 @@ ReNewTrackMenu(void)
 			 "Start Event", "Start The Current Race",
 			 NULL, reStateManage);
 
-    
-    GfuiMenuButtonCreate(newTrackMenuHdle, 
+
+    GfuiMenuButtonCreate(newTrackMenuHdle,
 			 "Abandon", "Abandon The Race",
 			 ReInfo->_reMenuScreen, GfuiScreenActivate);
 

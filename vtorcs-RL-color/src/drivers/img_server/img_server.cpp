@@ -1,5 +1,6 @@
 /***************************************************************************
 
+
     file                 : img_server.cpp
     created              : Tue Jun 12 13:41:04 CEST 2012
     copyright            : (C) 2012 Giuseppe Cuccu
@@ -20,17 +21,17 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h> 
-#include <string.h> 
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 //#include <iostream>
 //#include <sstream>
 //#include <ctime>
 
-#include <tgf.h> 
-#include <track.h> 
-#include <car.h> 
-#include <raceman.h> 
+#include <tgf.h>
+#include <track.h>
+#include <car.h>
+#include <raceman.h>
 #include <robottools.h>
 #include <robot.h>
 
@@ -44,11 +45,11 @@
 //#include "ObstacleSensors.h"
 
 
-/* 
- * Module entry point  
- */ 
-extern "C" int 
-img_server(tModInfo *modInfo) 
+/*
+ * Module entry point
+ */
+extern "C" int
+img_server(tModInfo *modInfo)
 {
     /* clear all structures */
     memset(modInfo, 0, 10*sizeof(tModInfo));
@@ -61,43 +62,43 @@ img_server(tModInfo *modInfo)
         modInfo[i].index   = i;           /* indices from 0 to 9 */
     }
 
-    return 0; 
-} 
+    return 0;
+}
 
 
 /* Module interface initialization. */
-static int 
-InitFuncPt(int index, void *pt) 
-{ 
-    tRobotItf *itf  = (tRobotItf *)pt; 
+static int
+InitFuncPt(int index, void *pt)
+{
+    tRobotItf *itf  = (tRobotItf *)pt;
 
     /* create robot instance for index */
     driver[index] = new Driver(index);
-    
-    itf->rbNewTrack = initTrack; /* Give the robot the track view called */ 
-				 /* for every track change or new race */ 
+
+    itf->rbNewTrack = initTrack; /* Give the robot the track view called */
+				 /* for every track change or new race */
     itf->rbNewRace  = newrace; 	 /* Start a new race */
     itf->rbDrive    = drive;	 /* Drive during race */
     itf->rbPitCmd   = pitcmd;    /* Pit commands */
     itf->rbEndRace  = endrace;	 /* End of the current race */
     itf->rbShutdown = shutdown;	 /* Called before the module is unloaded */
     itf->index      = index; 	 /* Index used if multiple interfaces */
-    return 0;     
-} 
+    return 0;
+}
 
 
 /* Called for every track change or new race. */
-static void  
-initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) 
-{ 
+static void
+initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s)
+{
     driver[index]->initTrack(track, carHandle, carParmHandle, s);
-} 
+}
 
 
 /* Start a new race. */
-static void  
-newrace(int index, tCarElt* car, tSituation *s) 
-{ 
+static void
+newrace(int index, tCarElt* car, tSituation *s)
+{
     driver[index]->newRace(car, s);
 
     /***********************************************************************************
@@ -178,7 +179,7 @@ newrace(int index, tCarElt* car, tSituation *s)
             // Sending the car state to the client
             if (sendto(listenSocket[index], line, strlen(line) + 1, 0,
                        (struct sockaddr *) &clientAddress[index],
-                       sizeof(clientAddress[index])) 
+                       sizeof(clientAddress[index]))
                 < 0)
                 std::cerr << "Error: cannot send identification message";
 
@@ -191,13 +192,11 @@ newrace(int index, tCarElt* car, tSituation *s)
     ************************* UDP client identification END ********************************
     ***************************************************************************************/
 
-} 
+}
 
 
 /* Drive during race. */
-static void  
-drive(int index, tCarElt* car, tSituation *s) 
-{ 
+static void drive(int index, tCarElt* car, tSituation *s) {
     // local variables for UDP
     struct timeval timeVal;
     fd_set readSet;
@@ -300,7 +299,7 @@ drive(int index, tCarElt* car, tSituation *s)
         // Sending the car state to the client
         if ( sendto( listenSocket[index], line, strlen(line) + 1, 0,
                      (struct sockaddr *) &clientAddress[index],
-                   	 sizeof(clientAddress[index])) 
+                   	 sizeof(clientAddress[index]))
               < 0)
           std::cerr << "Error: cannot send restart message";
 #else
@@ -354,6 +353,3 @@ shutdown(int index)
   free(botname[index]);
   delete driver[index];
 }
-
-
-

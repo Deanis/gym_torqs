@@ -47,14 +47,16 @@ bool runRaceConfigNoGUI = false;
 // End By dosssman
 
 static void
-init_args(int argc, char **argv, const char **raceconfig)
-{
+init_args(int argc, char **argv, const char **raceconfig) {
   int		i;
   char	*buf;
 
   setTextOnly(false);
   setNoisy(false);
   setVersion("2010");
+  //dosssman
+  setRecordHuman( false);
+  //end dossman
 
   i = 1;
 
@@ -169,6 +171,8 @@ init_args(int argc, char **argv, const char **raceconfig)
         // GfOut( *raceconfig);
         // GfOut( " \n");
         runRaceConfigGUI = true;
+        // Tweak for RACE RESTART even after laps all ended
+        // setTextOnly( true);
         i++;
       }
 
@@ -195,6 +199,11 @@ init_args(int argc, char **argv, const char **raceconfig)
         printf("Please specify a race configuration xml when using -r\n");
         exit(1);
       }
+    }
+    else if(strncmp(argv[i], "-rechum", 7) == 0) {
+      GfOut( "\n##### DEBUG: Recording human specified #####\n");
+      setRecordHuman( true);
+      i++;
     }
     // end dosssman
     else {
@@ -223,8 +232,7 @@ init_args(int argc, char **argv, const char **raceconfig)
 *
 */
 int
-main(int argc, char *argv[])
-{
+main(int argc, char *argv[]) {
   // dosssman
   // enable raceconfig detection
   const char *raceconfig = "";
