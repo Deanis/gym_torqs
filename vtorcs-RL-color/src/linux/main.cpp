@@ -56,6 +56,7 @@ init_args(int argc, char **argv, const char **raceconfig) {
   setVersion("2010");
   //dosssman
   setRecordHuman( false);
+  init_rec_session_start();
   //end dossman
 
   i = 1;
@@ -203,6 +204,7 @@ init_args(int argc, char **argv, const char **raceconfig) {
     else if(strncmp(argv[i], "-rechum", 7) == 0) {
       GfOut( "\n##### DEBUG: Recording human specified #####\n");
       setRecordHuman( true);
+
       i++;
     }
     // end dosssman

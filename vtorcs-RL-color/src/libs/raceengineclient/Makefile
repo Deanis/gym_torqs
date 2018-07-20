@@ -22,7 +22,7 @@ SOLIBDIR     = .
 
 SOURCES      = singleplayer.cpp raceinit.cpp racemain.cpp racemanmenu.cpp racestate.cpp racegl.cpp \
 	       raceengine.cpp raceresults.cpp CarControl.cpp mycar.cpp ObstacleSensors.cpp sensors.cpp \
-				 SimpleParser.cpp spline.cpp trackdesc.cpp pathfinder.cpp
+				 SimpleParser.cpp spline.cpp trackdesc.cpp pathfinder.cpp json.c
 
 EXPDIR       = include
 

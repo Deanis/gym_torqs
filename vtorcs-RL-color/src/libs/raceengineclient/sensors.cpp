@@ -1,8 +1,8 @@
 /***************************************************************************
- 
+
     file                 : sensors.cpp
     copyright            : (C) 2007 Alessandro Prete, Daniele Loiacono
- 
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -11,12 +11,34 @@
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
- *                                                                         *  
- ***************************************************************************/                                                 
- 
+ *                                                                         *
+ ***************************************************************************/
+
 #include "sensors.h"
 
 #define HALF_PI PI/2
+
+// dosssmna
+//Optimized NORM_PI_PI
+// double norm_pi_pi( const double angle) {
+//   angle = std::fmod( angle, ( double) PI);
+//   angle = std::fmod( ( angle + ( double) PI), ( double) PI);
+//   if( angle > HALF_PI)
+//     angle -= PI;
+//
+//   return angle;
+// }
+
+// Directly affects the value without declaring useless variable ?
+// supposedly optimal"er"
+
+void norm_pi_pi( double *angle) {
+  *angle = std::fmod( *angle, 2 * PI);
+  *angle = std::fmod( ( *angle + 2 * PI), 2 * PI);
+  if( *angle > PI)
+    *angle -= 2 * PI;
+}
+// end dosssman
 
 Sensors::Sensors(tCarElt *car, int sensors_number)
 {
@@ -34,19 +56,20 @@ Sensors::~Sensors()
 
 void Sensors::sensors_update()
 {
+  // printf( "##### DEBUG 0 #####\n");
 	for (int i = 0; i < sensors_num; i++) sensor[i].update();
+  // printf( "##### DEBUG 5 #####\n");
 }
 
-
 void Sensors::setSensor(int sensor_id, float angle, float range)
-{ 
-	sensor[sensor_id].setSingleSensor(angle, range); 
+{
+	sensor[sensor_id].setSingleSensor(angle, range);
 }
 
 
 float Sensors::getSensorOut(int sensor_id)
-{ 
-	return sensor[sensor_id].getSingleSensorOut(); 
+{
+	return sensor[sensor_id].getSingleSensorOut();
 }
 
 
@@ -60,16 +83,19 @@ void SingleSensor::setSingleSensor(float angle, float range)
 void SingleSensor::update()
 {
 	//Angolo del sensore relativo al segmento del tracciato
-	float relative_sensor_angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw + sensor_angle; 
+	double relative_sensor_angle = RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw + sensor_angle;
 
 /*	printf ("\nabsolute_car_angle:               %f (degree)", (car->_yaw*180)/PI);
 	printf ("\nabsolute_sensor_angle:            %f (degree)", (absolute_sensor_angle*180)/PI);
 	printf ("\nabsolute_track_angle:             %f (degree)", (absolute_track_angle*180)/PI);
 	printf ("\nrelative_sensor_angle:            %f (degree)", (relative_sensor_angle*180)/PI);
 	printf ("\nsensor_angle:					 %f (degree)", (sensor_angle*180)/PI);*/
-	
-	NORM_PI_PI(relative_sensor_angle);
-	
+  // dosssman
+  // NORM_PI_PI(relative_sensor_angle);
+  // Used optimized function for NORM_PI_PI
+  norm_pi_pi( &relative_sensor_angle);\
+  // end dosssman
+
 /*	printf ("\nrelative_sensor_angle normalized: %f (degree)", (relative_sensor_angle*180)/PI);
 	printf ("\nX1:                               %f (meters)", car->_trkPos.toLeft);
 	printf ("\nX2:                               %f (meters)", car->_trkPos.toRight);
@@ -78,8 +104,7 @@ void SingleSensor::update()
 	printf ("\nTrack Segment Start Width:        %f (meters)", car->_trkPos.seg->startWidth);
 	printf ("\nTrack Segment End Width:          %f (meters)", car->_trkPos.seg->endWidth);
 	printf ("\nTrack Segment Length:             %f (meters)\n", car->_trkPos.seg->length);*/
-
-	switch (car->_trkPos.seg->type) 
+	switch (car->_trkPos.seg->type)
 	{
 		case 3: sensor_out = sensor_calc_str(car->_trkPos.seg, car->_trkPos.toLeft, car->_trkPos.toStart, -relative_sensor_angle, sensor_range);
 				break;
@@ -91,7 +116,7 @@ void SingleSensor::update()
 }
 
 
-float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord, float angle, float remaining_range) 
+float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord, float angle, float remaining_range)
 {
 	float x_sx = x_coord;						//meters
 	float x_dx = (seg->startWidth) - x_coord;	//meters
@@ -105,7 +130,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 			if (x_sx < remaining_range) return x_sx;
 			else return remaining_range;
 		}
-		else 
+		else
 		{
 			if (x_dx < remaining_range) return x_dx;
 			else return remaining_range;
@@ -114,7 +139,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 	else
 		if (cos(angle) > 0 && sin(angle) >= 0)
 		{
-			if ((x_sx/y_up) > tan(angle)) //potrei incontrare il bordo superiore, controllare il range 
+			if ((x_sx/y_up) > tan(angle)) //potrei incontrare il bordo superiore, controllare il range
 			{
 				float partial = y_up/cos(angle);
 				if (partial >= remaining_range) return remaining_range;
@@ -122,7 +147,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 				{
 					float x = x_sx - (partial * sin(angle));
 					float partial_returned=0.1;
-					switch (seg->next->type) 
+					switch (seg->next->type)
 					{
 						case 3:	partial_returned = sensor_calc_str(seg->next, x, 0, angle, (remaining_range - partial));
 								break;
@@ -182,7 +207,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 				{
 					float x = x_sx - (partial * sin(PI-angle));
 					float partial_returned=0.1;
-					switch (seg->prev->type) 
+					switch (seg->prev->type)
 					{
 						case 3:	partial_returned = sensor_calc_str(seg->prev, x, seg->prev->length, angle, (remaining_range - partial));
 								break;
@@ -212,7 +237,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 				{
 					float x = x_sx + partial * sin(PI + angle);
 					float partial_returned=0.1;
-					switch (seg->prev->type) 
+					switch (seg->prev->type)
 					{
 						case 3:	partial_returned = sensor_calc_str(seg->prev, x, seg->prev->length, angle, (remaining_range - partial));
 								break;
@@ -235,7 +260,7 @@ float SingleSensor::sensor_calc_str(tTrackSeg *seg, float x_coord, float y_coord
 }
 
 
-float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_coord, float angle, float remaining_range) 
+float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_coord, float angle, float remaining_range)
 {
 	float x_sx = x_coord;						//meters
 	float x_dx = (seg->startWidth) - x_sx;		//meters
@@ -257,7 +282,7 @@ float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_c
 		radius_x = radius_min + x_dx;
 		temp_angle = -angle;
 	}
-	
+
 	float dist_returned;
 	float angle_returned;
 	float x_returned;
@@ -266,8 +291,8 @@ float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_c
 	else if (check_up_border_intersect(temp_angle, radius_min, radius_x, y_up, remaining_range, dist_returned, angle_returned, x_returned))
 	{
 		float partial_returned=0.1;
-//		printf ("\nRecursive Call for next segment\n");
-		
+    // printf ("\nRecursive Call for next segment\n");
+
 		// Correction of outputs if we are currently in a right turn (Daniele Loiacono - 3/2009)
 		if (seg->type == 1)
 		{
@@ -275,10 +300,10 @@ float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_c
 			angle_returned = -angle_returned;
 		}
 
-		if (seg->next->type==3) 
+		if (seg->next->type==3)
 		{
 			partial_returned = sensor_calc_str(seg->next, x_returned, 0, angle_returned, (remaining_range - dist_returned));
-		} 
+		}
 		else
 		{
 			partial_returned = sensor_calc_lft_rgt(seg->next, x_returned, 0, angle_returned, (remaining_range - dist_returned));
@@ -289,7 +314,7 @@ float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_c
 	else if (check_down_border_intersect(temp_angle, radius_min, radius_x, y_dn, remaining_range, dist_returned, angle_returned, x_returned))
 	{
 		float partial_returned=0.1;
-//		printf ("\nRecursive Call for prev segment\n");
+    //		printf ("\nRecursive Call for prev segment\n");
 
 		// Correction of outputs if we are currently in a right turn (Daniele Loiacono - 3/2009)
 		if (seg->type == 1)
@@ -298,15 +323,15 @@ float SingleSensor::sensor_calc_lft_rgt(tTrackSeg *seg, float x_coord, float y_c
 			angle_returned = -angle_returned;
 		}
 
-		if (seg->prev->type==3) 
+		if (seg->prev->type==3)
 		{
 			partial_returned = sensor_calc_str(seg->prev, x_returned, seg->prev->length, angle_returned, (remaining_range - dist_returned));
-					
+
 		}
 		else
 		{
 			partial_returned = sensor_calc_lft_rgt(seg->prev, x_returned, seg->prev->arc, angle_returned, (remaining_range - dist_returned));
-		}		
+		}
 		return (partial_returned + dist_returned);
 	}
 	else return remaining_range;
@@ -328,9 +353,9 @@ bool SingleSensor::check_max_circle_intersect(float angle, float radius_max, flo
 				float z = radius_max * sin(beta);
 				float dist = z - check_dist;
 				if (dist <= remaining_range)
-				{ 
+				{
 					dist_returned = dist;
-//					printf ("\nMax Circle Intersection (-90 < angle < 0)\n");
+          //					printf ("\nMax Circle Intersection (-90 < angle < 0)\n");
 					return true;
 				}
 				else return false;
@@ -348,9 +373,9 @@ bool SingleSensor::check_max_circle_intersect(float angle, float radius_max, flo
 				float z = radius_max * sin(beta);
 				float dist = z - check_dist;
 				if (dist <= remaining_range)
-				{ 
+				{
 					dist_returned = dist;
-//					printf ("\nMax Circle Intersection (-180 < angle < -90)\n");
+          //					printf ("\nMax Circle Intersection (-180 < angle < -90)\n");
 					return true;
 				}
 				else return false;
@@ -358,7 +383,7 @@ bool SingleSensor::check_max_circle_intersect(float angle, float radius_max, flo
 			else return false;
 		}
 	}
-	
+
 	else if (angle > 0)
 	{
 		if (angle <= (HALF_PI))
@@ -372,9 +397,9 @@ bool SingleSensor::check_max_circle_intersect(float angle, float radius_max, flo
 				float z = radius_max * sin(beta);
 				float dist = z + check_dist;
 				if (dist <= remaining_range)
-				{ 
+				{
 					dist_returned = dist;
-//					printf ("\nMax Circle Intersection (0 < angle < 90)\n");
+          //					printf ("\nMax Circle Intersection (0 < angle < 90)\n");
 					return true;
 				}
 				else return false;
@@ -392,9 +417,9 @@ bool SingleSensor::check_max_circle_intersect(float angle, float radius_max, flo
 				float z = radius_max * sin(beta);
 				float dist = z + check_dist;
 				if (dist <= remaining_range)
-				{ 
+				{
 					dist_returned = dist;
-//					printf ("\nMax Circle Intersection (90 < angle < 180)\n");
+          //					printf ("\nMax Circle Intersection (90 < angle < 180)\n");
 					return true;
 				}
 				else return false;
@@ -419,9 +444,9 @@ bool SingleSensor::check_min_circle_intersect(float angle, float radius_min, flo
 			float z = radius_min * sin(beta);
 			float dist = check_dist - z;
 			if (dist <= remaining_range)
-			{ 
+			{
 				dist_returned = dist;
-//				printf ("\nMin Circle Intersection (0 < angle < 90)\n");
+        //				printf ("\nMin Circle Intersection (0 < angle < 90)\n");
 				return true;
 			}
 			else return false;
@@ -439,9 +464,9 @@ bool SingleSensor::check_min_circle_intersect(float angle, float radius_min, flo
 			float z = radius_min * sin(beta);
 			float dist = check_dist - z;
 			if (dist <= remaining_range)
-			{ 
+			{
 				dist_returned = dist;
-//				printf ("\nMin Circle Intersection (90 < angle < 180)\n");
+        //				printf ("\nMin Circle Intersection (90 < angle < 180)\n");
 				return true;
 			}
 			else return false;
@@ -467,7 +492,7 @@ bool SingleSensor::check_up_border_intersect(float angle, float radius_min, floa
 				dist_returned = dist;
 				angle_returned = angle - y_up;
 				x_returned =  check - z - radius_min;
-//				printf ("\nUp Boarder Intersection\n");
+        //				printf ("\nUp Boarder Intersection\n");
 				return true;
 			}
 			else return false;
@@ -483,7 +508,7 @@ bool SingleSensor::check_up_border_intersect(float angle, float radius_min, floa
 				dist_returned = dist;
 				angle_returned = - (y_up - angle);
 				x_returned =  check + z - radius_min;
-//				printf ("\nUp Boarder Intersection\n");
+        //				printf ("\nUp Boarder Intersection\n");
 				return true;
 			}
 			else return false;
@@ -508,7 +533,7 @@ bool SingleSensor::check_down_border_intersect(float angle, float radius_min, fl
 				dist_returned = dist;
 				angle_returned = angle + y_dn;
 				x_returned =  check - z - radius_min;
-//				printf ("\nDown Boarder Intersection\n");
+        //				printf ("\nDown Boarder Intersection\n");
 				return true;
 			}
 			else return false;
@@ -524,7 +549,7 @@ bool SingleSensor::check_down_border_intersect(float angle, float radius_min, fl
 				dist_returned = dist;
 				angle_returned = -((2 * PI) - angle - y_dn);
 				x_returned =  check + z - radius_min;
-//				printf ("\nDown Boarder Intersection\n");
+        //				printf ("\nDown Boarder Intersection\n");
 				return true;
 			}
 			else return false;
@@ -540,7 +565,7 @@ bool SingleSensor::check_down_border_intersect(float angle, float radius_min, fl
 				dist_returned = dist;
 				angle_returned = -(-angle - y_dn);
 				x_returned =  check + z - radius_min;
-//				printf ("\nDown Boarder Intersection\n");
+        //				printf ("\nDown Boarder Intersection\n");
 				return true;
 			}
 			else return false;

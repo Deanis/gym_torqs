@@ -31,6 +31,11 @@
 
 #include <track.h>
 #include <plib/sg.h>
+// dosssman
+// TODO: Properly integrate the ccan json lib to avoid multiple compils
+// no time now
+#include "json.h"
+// end dossssman
 
 #define CAR_IDENT	0
 
@@ -433,6 +438,9 @@ typedef struct CarElt
 
     // GIUSE - VISION HERE!!!
     tRmVisionImg* vision; // it's ugly, but I need it to be a pointer to share it with the car
+    // dosssman - Data capture here
+    // char *player_data; // Stroes the palyer data as a JsonNode ( ref. CCAN JSON library)
+    JsonNode *play_data;
 } tCarElt;
 
 

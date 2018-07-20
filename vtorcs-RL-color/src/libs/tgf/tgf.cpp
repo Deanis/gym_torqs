@@ -44,6 +44,7 @@ static bool __VISION__ = false;
 static double __SPEEDMULT__ = 1.0;
 // dosssman
 static bool __RECORD_HUMAN__;
+static char __RECORD_START_TIME__[32];
 
 void setRecordHuman(bool value) {
 	__RECORD_HUMAN__ = value;
@@ -51,6 +52,28 @@ void setRecordHuman(bool value) {
 
 bool getRecordHuman() {
 	return __RECORD_HUMAN__;
+}
+
+void init_rec_session_start() {
+
+	struct tm	*stm;
+	time_t	t;
+	t = time(NULL);
+	stm = localtime(&t);
+
+	// TODO: Find the exact size of the string to save some mealse memory
+	// Stringify record session start time and store in variable
+	sprintf( __RECORD_START_TIME__, "%4d-%02d-%02d-%02d-%02d",
+		stm->tm_year+1900,
+		stm->tm_mon+1,
+		stm->tm_mday,
+		stm->tm_hour,
+		stm->tm_min
+	);
+}
+
+char *getRecSessionStartStr() {
+	return __RECORD_START_TIME__;
 }
 // End dosssman
 

@@ -2,9 +2,9 @@
 
     file        : racestate.h
     created     : Sat Nov 16 14:05:06 CET 2002
-    copyright   : (C) 2002 by Eric Espié                        
-    email       : eric.espie@torcs.org   
-    version     : $Id: racestate.h,v 1.3 2004/04/05 18:25:00 olethros Exp $                                  
+    copyright   : (C) 2002 by Eric Espiï¿½
+    email       : eric.espie@torcs.org
+    version     : $Id: racestate.h,v 1.3 2004/04/05 18:25:00 olethros Exp $
 
  ***************************************************************************/
 
@@ -16,9 +16,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
-/** @file    
-    		
+
+/** @file
+
     @author	<a href=mailto:torcs@free.fr>Eric Espie</a>
     @version	$Id: racestate.h,v 1.3 2004/04/05 18:25:00 olethros Exp $
 */
@@ -29,8 +29,7 @@
 extern void ReStateInit(void *prevMenu);
 extern void ReStateManage(void);
 extern void ReStateApply(void *state);
+// dosssman
+extern void dump_play_data();
 
-#endif /* _RACESTATE_H_ */ 
-
-
-
+#endif /* _RACESTATE_H_ */

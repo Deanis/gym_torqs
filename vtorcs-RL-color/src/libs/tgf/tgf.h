@@ -51,8 +51,14 @@ typedef float tdble;
 extern void setTextOnly(bool value);
 extern bool getTextOnly ();
 
+//dosssman
+// Record player data support option
 extern void setRecordHuman(bool value);
 extern bool getRecordHuman();
+
+extern void init_rec_session_start();
+extern char *getRecSessionStartStr();
+// end dosssman
 
 extern void GfInit(void);
 
@@ -92,12 +98,13 @@ do {						\
 } while (0)
 
 /** Angle normalization between -PI and PI */
+// TODO: Change to more performant computation
+// https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees
 #define NORM_PI_PI(x) 				\
 do {						\
 	while ((x) > PI) { (x) -= 2*PI; }	\
 	while ((x) < -PI) { (x) += 2*PI; } 	\
 } while (0)
-
 
 #ifndef DIST
 /** Distance between two points */

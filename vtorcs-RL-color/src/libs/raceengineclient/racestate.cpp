@@ -39,8 +39,26 @@ version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 #include "racemanmenu.h"
 
 #include "racestate.h"
+#include "json.h"
+
+//dosssman
+// Using time for dump file name creation
+// Also folder creation dependencies
+#include "time.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <tgf.h>
+// end dosssman
 
 static void *mainMenu;
+
+// dosssman
+// Counting eisode to name the dumped json play data
+static int ep_counter = 0;
+// Static var for dump file name
+static char filepath[1024];
+// end dosssman
 
 /* State Automaton Init */
 void ReStateInit(void *prevMenu) {
@@ -86,7 +104,7 @@ void ReStateManage(void) {
 			case RE_STATE_EVENT_INIT:
 				//				printf("RE_STATE_EVENT_INIT\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_EVENT_INIT\n");
+					GfOut("RaceEngine: state = RE_STATE_EVENT_INIT\n");
 				/* Load the event description (track and drivers list) */
 				mode = ReRaceEventInit();
 				if (mode & RM_NEXT_STEP) {
@@ -132,6 +150,8 @@ void ReStateManage(void) {
 				if (getTextOnly()==false)
 				GfOut("RaceEngine: state = RE_STATE_RACE_STOP\n");
 				/* Interrupted by player */
+				// dosssman
+				// TODO: Dump player data
 				mode = ReRaceStop();
 				if (mode & RM_NEXT_STEP) {
 					if (RESTART==1)
@@ -155,14 +175,18 @@ void ReStateManage(void) {
 			case RE_STATE_RACE_END:
 				//				printf("RE_STATE_RACE_END\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_RACE_END BOIII\n");
+				GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
 				// mode = ReRaceEnd();
+				// dosssman
+				// dumping data
+				dump_play_data();
+				ep_counter++;
+
 				mode = ReRaceEventInit();
 				if(mode == RE_STATE_EXIT)
 				{
-					// TODO: Circumventing Race End after Laps
-					// End only from the Python controller ( episode number)
-					// Not just if race ends
+					// dosssman
+					// TODO: Dump player data
 
 					// Original
 					ReInfo->_reState=RE_STATE_EXIT;
@@ -174,7 +198,12 @@ void ReStateManage(void) {
 				else
 				{
 					if (mode & RM_NEXT_STEP) {
+						// Dump play data use ReInfo params rquired probably
+						// dosssman
+						// TODO: Dump player data
+
 						ReRaceCleanup();
+						// end dosssman
 						ReInfo->_reState = RE_STATE_PRE_RACE;
 						// ReInfo->_reState = RE_STATE_POST_RACE;
 					} else if (mode & RM_NEXT_RACE) {
@@ -186,7 +215,8 @@ void ReStateManage(void) {
 			case RE_STATE_POST_RACE:
 				//				printf("RE_STATE_POST_RACE\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
+					GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
+
 				mode = RePostRace();
 				if (mode & RM_NEXT_STEP) {
 					ReInfo->_reState = RE_STATE_EVENT_SHUTDOWN;
@@ -251,3 +281,48 @@ void ReStateApply(void *vstate) {
 	ReInfo->_reState = (int)state;
 	ReStateManage();
 }
+
+// dosssman
+// Dumping firsts car play_data
+// May be upgraded to all cars
+void dump_play_data() {
+
+	// Get car and play data
+	tSituation *s = ReInfo->s;
+	tCarElt *car = *(s->cars); // Takes the first car, mind you
+	JsonNode *play_data = car->play_data;
+
+	struct stat st = {0};
+	// Generate respective folder name
+	sprintf( filepath, "/tmp/torcs_play_data");
+
+	// Creating root folder for torcs_play_data
+	if (stat( filepath, &st) == -1) {
+    mkdir( filepath, 0777);
+	}
+
+	//Creating folder for currentr game session
+	sprintf( filepath, "%s/%s", filepath, getRecSessionStartStr());
+
+	if (stat( filepath, &st) == -1) {
+    mkdir( filepath, 0777);
+	}
+
+	// Generating filename for play_data;
+	sprintf( filepath, "%s/%d.json", filepath, ep_counter);
+
+	printf( "### DEBUG: Creating file\n");
+	printf( "### DEBUG: %s\n", filepath);
+
+	FILE *f = fopen( filepath, "w");
+
+	if( f == NULL)
+		printf("### DEBUG: Failed to created file\n");
+
+	fprintf( f, json_encode( play_data));
+
+	printf( "### DEBUG: Dumped JSON play_data: %s\n\n", filepath);
+
+	fclose(f);
+}
+// end dosssman
