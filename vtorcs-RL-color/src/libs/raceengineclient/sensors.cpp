@@ -34,8 +34,8 @@
 // supposedly optimal"er"
 
 void norm_pi_pi( double *angle) {
-  *angle = std::fmod( *angle, 2 * PI);
-  *angle = std::fmod( ( *angle + 2 * PI), 2 * PI);
+  *angle = fmod( *angle, 2 * PI);
+  *angle = fmod( ( *angle + 2 * PI), 2 * PI);
   if( *angle > PI)
     *angle -= 2 * PI;
 }
