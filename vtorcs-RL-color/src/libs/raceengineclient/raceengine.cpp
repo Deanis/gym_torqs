@@ -973,7 +973,6 @@ int ReUpdate(void) {
 		// tCarElt **cars = s->cars;
 		tCarElt *car = *(s->cars); // Takes the first car, ala index == 0
 		tTrack *curTrack = ReInfo->track;
-
 		// Create necessary variables for sensors updates
 		Sensors *trackSens[1];
 		trackSens[0] = new Sensors(car, 19);

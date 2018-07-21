@@ -495,6 +495,7 @@ static void newrace(int index, tCarElt* car, tSituation *s) {
         stateString += SimpleParser::stringify("totalDistFromStart", totdist);
         stateString += SimpleParser::stringify("distRaced", distRaced[index]);
         stateString += SimpleParser::stringify("fuel", car->_fuel);
+        stateString += SimpleParser::stringify("lap", car->race.laps);
         stateString += SimpleParser::stringify("gear", car->_gear);
         stateString += SimpleParser::stringify("lastLapTime", float(car->_lastLapTime));
         stateString += SimpleParser::stringify("opponents", oppSensorOut, 36);

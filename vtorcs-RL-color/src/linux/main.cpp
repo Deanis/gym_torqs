@@ -172,7 +172,7 @@ init_args(int argc, char **argv, const char **raceconfig) {
         // GfOut( *raceconfig);
         // GfOut( " \n");
         runRaceConfigGUI = true;
-        // Tweak for RACE RESTART even after laps all ended
+        // TODO Tweak for RACE RESTART even after laps all ended
         // setTextOnly( true);
         i++;
       }

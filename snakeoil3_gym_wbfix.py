@@ -296,7 +296,7 @@ class Client():
                % (self.maxSteps,self.port)))
         self.so.close()
         self.so = None
-        #sys.exit() # No need for this really.
+        # sys.exit() # No need for this really.
 
 class ServerState():
     '''What the server is reporting right now.'''

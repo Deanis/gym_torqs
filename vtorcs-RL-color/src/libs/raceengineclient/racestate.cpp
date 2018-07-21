@@ -175,14 +175,20 @@ void ReStateManage(void) {
 			case RE_STATE_RACE_END:
 				//				printf("RE_STATE_RACE_END\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
+					GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
+
 				// mode = ReRaceEnd();
 				// dosssman
 				// dumping data
-				dump_play_data();
-				ep_counter++;
+				if( getRecordHuman()) {
+					dump_play_data();
+					ep_counter++;
+				}
 
+				ReRaceCleanup();
 				mode = ReRaceEventInit();
+				ReInfo->_reState = RE_STATE_PRE_RACE;
+
 				if(mode == RE_STATE_EXIT)
 				{
 					// dosssman
@@ -191,9 +197,6 @@ void ReStateManage(void) {
 					// Original
 					ReInfo->_reState=RE_STATE_EXIT;
 					// End Original
-					// GfOut( "RaceEngine: Reached the restart point\n");
-					// ReRaceCleanup();
-					// ReInfo->_reState = RE_STATE_PRE_RACE;
 				}
 				else
 				{
@@ -201,8 +204,7 @@ void ReStateManage(void) {
 						// Dump play data use ReInfo params rquired probably
 						// dosssman
 						// TODO: Dump player data
-
-						ReRaceCleanup();
+						// ReRaceCleanup();
 						// end dosssman
 						ReInfo->_reState = RE_STATE_PRE_RACE;
 						// ReInfo->_reState = RE_STATE_POST_RACE;
@@ -218,6 +220,8 @@ void ReStateManage(void) {
 					GfOut("RaceEngine: state = RE_STATE_POST_RACE\n");
 
 				mode = RePostRace();
+				// ReRaceCleanup();
+				// mode = ReRaceEventInit();
 				if (mode & RM_NEXT_STEP) {
 					ReInfo->_reState = RE_STATE_EVENT_SHUTDOWN;
 				} else if (mode & RM_NEXT_RACE) {
