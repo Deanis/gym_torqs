@@ -1141,7 +1141,14 @@ int ReUpdate(void) {
 
 		json_append_member( step_data, "focus", jFocusSensorOut);
 
+		json_append_member( step_data, "steer",
+		 	json_mknumber( 1.0 * float( - car->ctrl.steer)));
+		json_append_member( step_data, "accel",
+		 	json_mknumber( 1.0 * float( car->ctrl.accelCmd - car->ctrl.brakeCmd)));
+
 		// DEBUG
+		// printf( "# DEBUG: Steer :%.2f - Accel: %.2f - Brake: %.2f\n",
+		// 	car->ctrl.steer, car->ctrl.accelCmd, car->ctrl.brakeCmd);
 		// printf( json_encode( step_data));
 		// printf( "\n\n");
 

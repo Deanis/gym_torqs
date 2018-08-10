@@ -249,8 +249,7 @@ extern "C" int human(tModInfo *modInfo) {
  * Remarks
  *
  */
-static void initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s)
-{
+static void initTrack(int index, tTrack* track, void *carHandle, void **carParmHandle, tSituation *s) {
 	char *carname;
 	char *s1, *s2;
 	char trackname[256];
@@ -437,10 +436,7 @@ static void updateKeys(void) {
     }
 }
 
-
-static int
-onKeyAction(unsigned char key, int modifier, int state)
-{
+static int onKeyAction(unsigned char key, int modifier, int state) {
 	currentKey[key] = state;
 
 	return 0;
@@ -474,8 +470,7 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 		GfuiKeyEventRegisterCurrent(onKeyAction);
 		GfuiSKeyEventRegisterCurrent(onSKeyAction);
 		firstTime = 0;
-    }
-
+  }
 
 	HCtx[idx]->distToStart = RtGetDistFromStart(car);
 
@@ -639,8 +634,12 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 			break;
 	}
 
-	car->_steerCmd = leftSteer + rightSteer;
+	// DEBUG Juicy boys
+	// printf( "# DEBUG: %0.4f\n", s->currentTime);
+	// printf( "\t# DEBUG: LeftSteer: %0.3f - RightSteer: %0.3f - Sum: %0.3f\n",
+	// 				leftSteer, rightSteer, leftSteer + rightSteer);
 
+	car->_steerCmd = leftSteer + rightSteer;
 
 	switch (cmd[CMD_BRAKE].type) {
 		case GFCTRL_TYPE_JOY_AXIS:
@@ -770,6 +769,9 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 			break;
 	}
 
+		// DEBUG Juicy boys
+		// printf( "\t# DEBUG: AccelCmd: %0.3f\n", car->_accelCmd);
+
 	if (s->currentTime > 1.0) {
 		// thanks Christos for the following: gradual accel/brake changes for on/off controls.
 		const tdble inc_rate = 0.2f;
@@ -799,6 +801,8 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 		}
 	}
 
+	// printf( "\t# DEBUG: BrakeCMd: %0.3f\n", car->_brakeCmd);
+
 	if (HCtx[idx]->AutoReverseEngaged) {
 		/* swap brake and throttle */
 		brake = car->_brakeCmd;
@@ -806,8 +810,7 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 		car->_accelCmd = brake;
 	}
 
-	if (HCtx[idx]->ParamAbs)
-	{
+	if (HCtx[idx]->ParamAbs) {
 		if (fabs(car->_speed_x) > 10.0)
 		{
 			tdble rearskid = MAX(0.0, MAX(car->_skid[2], car->_skid[3]) - MAX(car->_skid[0], car->_skid[1]));
@@ -839,9 +842,7 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 		}
 	}
 
-
-	if (HCtx[idx]->ParamAsr)
-	{
+	if (HCtx[idx]->ParamAsr) {
     	tdble trackangle = RtTrackSideTgAngleL(&(car->_trkPos));
 		tdble angle = trackangle - car->_yaw;
 		NORM_PI_PI(angle);
@@ -907,7 +908,6 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 		}
 	}
 
-
 #ifndef WIN32
 #ifdef TELEMETRY
 	if ((car->_laps > 1) && (car->_laps < 5)) {
@@ -928,8 +928,7 @@ static void common_drive(int index, tCarElt* car, tSituation *s) {
 }
 
 
-static tdble getAutoClutch(int idx, int gear, int newgear, tCarElt *car)
-{
+static tdble getAutoClutch(int idx, int gear, int newgear, tCarElt *car) {
 	if (newgear != 0 && newgear < car->_gearNb) {
 		if (newgear != gear) {
 			HCtx[idx]->clutchtime = 0.332f - ((tdble) newgear / 65.0f);
@@ -959,8 +958,7 @@ static tdble getAutoClutch(int idx, int gear, int newgear, tCarElt *car)
  * Remarks
  *
  */
-static void drive_mt(int index, tCarElt* car, tSituation *s)
-{
+static void drive_mt(int index, tCarElt* car, tSituation *s) {
 	int i;
 	int idx = index - 1;
 	tControlCmd	*cmd = HCtx[idx]->CmdControl;
@@ -1029,8 +1027,7 @@ static void drive_mt(int index, tCarElt* car, tSituation *s)
  * Remarks
  *
  */
-static void drive_at(int index, tCarElt* car, tSituation *s)
-{
+static void drive_at(int index, tCarElt* car, tSituation *s) {
 	int gear, i;
 	int idx = index - 1;
 	tControlCmd	*cmd = HCtx[idx]->CmdControl;
@@ -1047,7 +1044,7 @@ static void drive_at(int index, tCarElt* car, tSituation *s)
 	gear += car->_gearOffset;
 	car->_gearCmd = car->_gear;
 
-    if (!HCtx[idx]->AutoReverse) {
+  if (!HCtx[idx]->AutoReverse) {
 		/* manual shift */
 		if (((cmd[CMD_UP_SHFT].type == GFCTRL_TYPE_JOY_BUT) && joyInfo->edgeup[cmd[CMD_UP_SHFT].val]) ||
 			((cmd[CMD_UP_SHFT].type == GFCTRL_TYPE_KEYBOARD) && keyInfo[cmd[CMD_UP_SHFT].val].edgeUp) ||
@@ -1126,8 +1123,7 @@ static void drive_at(int index, tCarElt* car, tSituation *s)
 	    car->_clutchCmd = getAutoClutch(idx, car->_gear, car->_gearCmd, car);
 }
 
-static int pitcmd(int index, tCarElt* car, tSituation *s)
-{
+static int pitcmd(int index, tCarElt* car, tSituation *s) {
 	tdble f1, f2;
 	tdble ns;
 	int idx = index - 1;
