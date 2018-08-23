@@ -29,7 +29,17 @@
 extern void ReStateInit(void *prevMenu);
 extern void ReStateManage(void);
 extern void ReStateApply(void *state);
+
 // dosssman
-extern void dump_play_data();
+void dump_play_data();
+void append_step_data();
+void append_episode_data();
+
+void init_save_paths();
+void open_save_files();
+void close_save_files();
+// noise helper
+double normRand( double, double);
+// end dosssman
 
 #endif /* _RACESTATE_H_ */

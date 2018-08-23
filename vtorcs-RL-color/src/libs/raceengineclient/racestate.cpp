@@ -39,7 +39,6 @@ version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 #include "racemanmenu.h"
 
 #include "racestate.h"
-#include "json.h"
 
 //dosssman
 // Using time for dump file name creation
@@ -49,6 +48,14 @@ version     : $Id: racestate.cpp,v 1.5 2005/08/17 20:48:39 berniw Exp $
 #include <sys/stat.h>
 #include <unistd.h>
 #include <tgf.h>
+#include <string.h>
+#include "sensors.h"
+#include "SimpleParser.h"
+#include "CarControl.h"
+#include "ObstacleSensors.h"
+
+// Dirty trick: Do all the race data recording here T_T
+string obs, rews, acs;
 // end dosssman
 
 static void *mainMenu;
@@ -58,6 +65,15 @@ static void *mainMenu;
 static int ep_counter = 0;
 // Static var for dump file name
 static char filepath[1024];
+char save_dir[196];
+
+char obs_file[256] = {};
+char acs_file[256] = {};
+char rews_file[256] = {};
+
+FILE *obs_f = NULL;
+FILE *acs_f = NULL;
+FILE *rews_f = NULL;
 // end dosssman
 
 /* State Automaton Init */
@@ -110,6 +126,11 @@ void ReStateManage(void) {
 				if (mode & RM_NEXT_STEP) {
 					ReInfo->_reState = RE_STATE_PRE_RACE;
 				}
+
+				if( getRecordHuman()) {
+					printf( "#### DEBUG: Initializing save paths\n");
+					init_save_paths();
+				}
 				break;
 
 			case RE_STATE_PRE_RACE:
@@ -120,21 +141,32 @@ void ReStateManage(void) {
 				if (mode & RM_NEXT_STEP) {
 					ReInfo->_reState = RE_STATE_RACE_START;
 				}
+
+				if( getRecordHuman()) {
+					printf( "### DEBUG: Current episode: %d / %d\n", ep_counter,
+					 	REC_EPISODE_LIMIT);
+					// open_save_files();
+				}
 				break;
 
 			case RE_STATE_RACE_START:
 				//				printf("RE_STATE_RACE_START\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_RACE_START\n");
-				mode = ReRaceStart();
-				if (mode & RM_NEXT_STEP) {
-					ReInfo->_reState = RE_STATE_RACE;
-				}
+					GfOut("RaceEngine: state = RE_STATE_RACE_START\n");
+					mode = ReRaceStart();
+					if (mode & RM_NEXT_STEP) {
+						ReInfo->_reState = RE_STATE_RACE;
+					}
 				break;
 
 			case RE_STATE_RACE:
 				//				printf("RE_STATE_RACE\n");
 				mode = ReUpdate();
+				// dosssman
+				if( getRecordHuman())
+					append_step_data();
+				// end dosssman
+
 				// GfOut( mode);
 				if (ReInfo->s->_raceState == RM_RACE_ENDED) {
 					/* race finished */
@@ -181,8 +213,20 @@ void ReStateManage(void) {
 				// dosssman
 				// dumping data
 				if( getRecordHuman()) {
-					dump_play_data();
-					ep_counter++;
+					// dump_play_data();
+					// Insert gotoline in the save file
+					append_episode_data();
+					// close_save_files();
+				}
+
+				ep_counter++;
+
+				if( getRecordHuman() && ep_counter >= REC_EPISODE_LIMIT - 1) {
+					printf( "### DEBUG: Episode limit reached, shutting down the game !\n" );
+					ReInfo->s->_raceState = RM_RACE_ENDED;
+					ReInfo->_reState=RE_STATE_EXIT;
+					// mode = ReRaceEnd();
+					break;
 				}
 
 				ReRaceCleanup();
@@ -327,6 +371,245 @@ void dump_play_data() {
 
 	printf( "### DEBUG: Dumped JSON play_data: %s\n\n", filepath);
 
+	// Attempt to mitigate the memory leak
+	json_delete( play_data);
+
 	fclose(f);
 }
+
+//
+void append_step_data() {
+	// Appending step data
+	tSituation *s = ReInfo->s;
+
+	// tCarElt **cars = s->cars;
+	tCarElt *car = *(s->cars); // Takes the first car, ala index == 0
+	tTrack *curTrack = ReInfo->track;
+	// Create necessary variables for sensors updates
+	Sensors *trackSens[1];
+	trackSens[0] = new Sensors(car, 19);
+
+	ObstacleSensors *oppSens[1];
+	oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
+
+	Sensors *focusSens[1];//ML
+	focusSens[0] = new Sensors(car, 5);//ML
+
+	tdble prevDist[1] , distRaced[1];
+
+	// GfOut( "Car index: %d;\n", car->index);
+
+	// DEBUG
+	// GfOut( "Found %d players\n;", s->raceInfo.ncars);
+
+	// {
+	// struct timeval timeVal;
+	// fd_set readSet;
+
+	// computing distance to middle
+	float dist_to_middle = 2*car->_trkPos.toMiddle/(car->_trkPos.seg->width);
+	// computing the car angle wrt the track axis
+	float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	NORM_PI_PI( angle); // normalize the angle between -PI and + PI
+
+	// //Update focus sensors' angle
+	for (int i = 0; i < 5; ++i) {
+		focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
+	}
+
+	// update the value of track sensors only as long as the car is inside the track
+	float trackSensorOut[19];
+	float focusSensorOut[5];//ML
+
+	if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
+		//TODO: Game freezes here
+		trackSens[0]->sensors_update();
+
+		for (int i = 0; i < 19; ++i)
+		{
+			trackSensorOut[i] = trackSens[0]->getSensorOut(i);
+			if (getNoisy())
+			trackSensorOut[i] *= normRand(1,.1);
+		}
+		focusSens[0]->sensors_update();//ML
+		if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
+		&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
+		{//ML
+			for (int i = 0; i < 5; ++i)
+			{
+				focusSensorOut[i] = focusSens[0]->getSensorOut(i);
+				if (getNoisy())
+				focusSensorOut[i] *= normRand(1, .01);
+			}
+			car->_focusCD = car->_curLapTime + car->_curTime + 1.0;//ML Add cooldown [seconds]
+		}//ML
+		else//ML
+		{//ML
+			for (int i = 0; i < 5; ++i)//ML
+			focusSensorOut[i] = -1;//ML During cooldown send invalid focus reading
+		}//ML
+	}
+	else {
+		for (int i = 0; i < 19; ++i)
+		{
+			trackSensorOut[i] = -1;
+		}
+		for (int i = 0; i < 5; ++i)
+		{
+			focusSensorOut[i] = -1;
+		}
+	}
+
+	// update the value of opponent sensors
+	float oppSensorOut[36];
+
+	oppSens[0]->sensors_update(s);
+	for (int i = 0; i < 36; ++i) {
+		// XXX: Normalizing it like it is done in Gym TorcsEnv
+		oppSensorOut[i] = (float) oppSens[0]->getObstacleSensorOut(i) / 200.0;
+		if (getNoisy())
+			oppSensorOut[i] *= normRand(1, .02);
+	}
+
+	float wheelSpinVel[4];
+	for (int i=0; i<4; ++i) {
+		// XXX: Normalizing it like it is done in Gym TorcsEnv
+		wheelSpinVel[i] = ( float) car->_wheelSpinVel(i) / 100.0;
+	}
+
+	// if (prevDist[0]<0) {
+	// 	prevDist[0] = car->race.distFromStartLine;
+	// }
+	// float curDistRaced = car->race.distFromStartLine - prevDist[0];
+	// prevDist[0] = car->race.distFromStartLine;
+	// if (curDistRaced>100) {
+	// 	curDistRaced -= curTrack->length;
+	// }
+	// if (curDistRaced<-100) {
+	// 	curDistRaced += curTrack->length;
+	// }
+	// distRaced[0] += curDistRaced;
+	// float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
+	// Player data to Json object in car-> play_data
+
+	// CSV style logging
+
+	obs += SimpleParser::stringifym( angle); //angle
+	obs += SimpleParser::stringifym( trackSensorOut, 19); // track
+	obs += SimpleParser::stringifym( dist_to_middle); // trackPos
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_x);
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_y);
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_z);
+	obs += SimpleParser::stringifym( wheelSpinVel, 4); // wheelspinvel
+	obs += SimpleParser::stringifym( car->_enginerpm * 10);
+	obs += SimpleParser::stringifym( oppSensorOut, 36); // opp sensoirs
+
+	// TODO Free Pointers of observations vars
+	delete( trackSens[0]);
+	delete( oppSens[0]);
+	delete( focusSens[0]);
+
+	acs += SimpleParser::stringifym( float( - car->ctrl.steer));
+	acs += SimpleParser::stringifym( float( car->ctrl.accelCmd
+		- car->ctrl.brakeCmd));
+
+	// XXX: Compute the rwrd in case of dist only, must match reward in gym torcs
+	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle));
+
+	// open_save_files();
+	// printf( "### DEBUG: Reached file writing\n");
+	// printf( "### DEBUG: Obs bfore writing: %s\n", obs.c_str());
+	// fprintf( obs_f, obs.c_str());
+	// fprintf( acs_f, acs.c_str());
+	// fprintf( rews_f, rews.c_str());
+	// Checking if string filetype is variable
+	// obs = ""; acs = ""; rews = "";
+	// close_save_files();
+}
+
+void append_episode_data() {
+	// Appends episode data to the CSV file then clears the variables
+	// Basically goto newline and the data appending at the timestep level does
+	// rest
+
+	// printf( "### DEBUG: Reached file writing episode end\n");
+	open_save_files();
+	fprintf( obs_f, obs.c_str());
+	fprintf( acs_f, acs.c_str());
+	fprintf( rews_f, rews.c_str());
+	fprintf( obs_f, "\n");
+	fprintf( acs_f, "\n");
+	fprintf( rews_f,"\n");
+	obs = ""; acs = ""; rews = "";
+	close_save_files();
+}
+
+void init_save_paths() {
+	struct stat st = {0};
+
+	strncpy( save_dir, getenv( "TORCS_DATA_DIR"), 196);
+	strncpy( save_dir, "\0", 1);
+
+	// printf( "## DEBUG: ENvpath: %s\n", save_dir);
+
+	if( save_dir[0] == '\0')
+		if (stat( save_dir, &st) == -1) {
+			mkdir( filepath, 0777);
+		}
+	else {
+		strncpy( save_dir, "/tmp/torcs_play_data", 196);
+		if (stat( save_dir, &st) == -1) {
+			mkdir( filepath, 0777);
+		}
+	}
+
+	strncat( strncat( obs_file, getenv( "TORCS_DATA_DIR"), sizeof( obs_file)), "/obs.csv", 8);
+	strncat( strncat( acs_file, getenv( "TORCS_DATA_DIR"), sizeof( acs_file)), "/acs.csv", 8);
+	strncat( strncat( rews_file, getenv( "TORCS_DATA_DIR"), sizeof( rews_file)), "/rews.csv", 9);
+}
+
+void open_save_files() {
+
+	// printf( "### DEBUG: Opening file: %s\n", obs_file);
+	obs_f = fopen( obs_file, "a");
+	if( obs_f == NULL)
+		printf( "### DEBUG: File opening failed");
+
+	acs_f = fopen( acs_file, "a");
+
+	rews_f = fopen( rews_file, "a");
+}
+
+void close_save_files() {
+	if( obs_f != NULL) {
+		fclose( obs_f);
+		obs_f = NULL;
+	}
+
+	if( acs_f != NULL) {
+		fclose( acs_f);
+		acs_f = NULL;
+	}
+
+	if( rews_f != NULL) {
+		fclose( rews_f);
+		rews_f = NULL;
+	}
+}
 // end dosssman
+
+double normRand(double avg,double std)
+{
+	double x1, x2, w, y1, y2;
+
+	do {
+		x1 = 2.0 * rand()/(double(RAND_MAX)) - 1.0;
+		x2 = 2.0 * rand()/(double(RAND_MAX)) - 1.0;
+		w = x1 * x1 + x2 * x2;
+	} while ( w >= 1.0 );
+
+	w = sqrt( (-2.0 * log( w ) ) / w );
+	y1 = x1 * w;
+	y2 = x2 * w;
+	return y1*std + avg;
+}

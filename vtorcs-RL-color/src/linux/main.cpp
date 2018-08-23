@@ -207,6 +207,29 @@ init_args(int argc, char **argv, const char **raceconfig) {
 
       i++;
     }
+    // XXX: Maybe useless after all
+    else if(strncmp(argv[i], "-save_folder", 12) == 0) {
+      GfOut( "\n##### DEBUG: Episode limit #####\n");
+      // setRecordHuman( true);
+      // set a name for the data to be saved, inside the default save data folder
+      // so the currently saved data can be read and appended
+
+      i++;
+    }
+    // Set Episode count
+    else if(strncmp(argv[i], "-episodes", 9) == 0) {
+      GfOut( "\n##### DEBUG: Episode limit #####\n");
+      // setRecordHuman( true);
+
+      i++;
+    }
+    // Set Episode count
+    else if(strncmp(argv[i], "-step_by_ep", 11) == 0) {
+      GfOut( "\n##### DEBUG: Time step in episode #####\n");
+      // setRecordHuman( true);
+
+      i++;
+    }
     // end dosssman
     else {
       i++;		/* ignore bad args */

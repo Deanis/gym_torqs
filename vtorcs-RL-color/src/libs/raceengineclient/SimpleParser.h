@@ -1,8 +1,8 @@
 /***************************************************************************
- 
+
     file                 : SimpleParser.h
     copyright            : (C) 2007 Daniele Loiacono
- 
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -39,7 +39,12 @@ public:
         static string  stringify(string tag, float *value, int size);
 
         // GIUSE - stringify images
-        static string  stringify(string tag, unsigned char *value, int size); 
+        static string  stringify(string tag, unsigned char *value, int size);
+
+        // dosssman - just stringify a float value
+        static string stringifym( float);
+
+        static string stringifym( float *, int);
 
 };
 

@@ -59,6 +59,10 @@ static double	bigMsgDisp;
 tRmInfo	*ReInfo = 0;
 int	RESTART = 0;
 
+// Data record parameters
+int episode = 0;
+int timestep = 0;
+
 // GIUSE - debug - size of the image to be sent through udp
 // Make it zero to deactivate
 int GIUSEIMGSIZE = 64;
@@ -667,156 +671,6 @@ static void ReOneStep(double deltaTimeIncrement) {
 	tRobotItf *robot;
 	tSituation *s = ReInfo->s;
 
-	// TODO: Hook for player data collection
-	// dosssman
-	// Trigger evey .02 s ( 50 Hz) for state record
-	// GfOut( "Current time: %.3f\n", s->deltaTime);
-
-	// Intercept human data
-	// GfOut( s->cars);
-
-	// tCarElt **cars = s->cars;
-	// tCarElt *car = *(s->cars);
-	// tTrack *curTrack = ReInfo->track;
-	//
-	// // Create necessary variables for sensors updates
-	// Sensors *trackSens[1];
-	// trackSens[0] = new Sensors(car, 19);
-	//
-	// // ObstacleSensors *oppSens[1];
-	// // oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
-	//
-	// Sensors *focusSens[1];//ML
-	// focusSens[0] = new Sensors(car, 5);//ML
-	// //
-	// tdble prevDist[1] , distRaced[1];;
-	//
-	// // GfOut( "Car index: %d;\n", car->index);
-	//
-	// // DEBUG
-	// // GfOut( "Found %d players\n;", s->raceInfo.ncars);
-	//
-	// // {
-	// // struct timeval timeVal;
-	// // fd_set readSet;
-	//
-	// // computing distance to middle
-	// float dist_to_middle = 2*car->_trkPos.toMiddle/(car->_trkPos.seg->width);
-	// // computing the car angle wrt the track axis
-	// float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-	// NORM_PI_PI(angle); // normalize the angle between -PI and + PI
-	//
-	// // //Update focus sensors' angle
-	// for (int i = 0; i < 5; ++i) {
-	// 	focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
-	// }
-	//
-	// // update the value of track sensors only as long as the car is inside the track
-	// float trackSensorOut[19];
-	// float focusSensorOut[5];//ML
-	//
-	// // if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
-	// // 	trackSens[0]->sensors_update();
-	// // 	for (int i = 0; i < 19; ++i)
-	// // 	{
-	// // 		trackSensorOut[i] = trackSens[0]->getSensorOut(i);
-	// // 		if (getNoisy())
-	// // 		trackSensorOut[i] *= normRand(1,.1);
-	// // 	}
-	// // 	focusSens[0]->sensors_update();//ML
-	// // 	if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
-	// // 	&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
-	// // 	{//ML
-	// // 		for (int i = 0; i < 5; ++i)
-	// // 		{
-	// // 			focusSensorOut[i] = focusSens[0]->getSensorOut(i);
-	// // 			if (getNoisy())
-	// // 			focusSensorOut[i] *= normRand(1, .01);
-	// // 		}
-	// // 		car->_focusCD = car->_curLapTime + car->_curTime + 1.0;//ML Add cooldown [seconds]
-	// // 	}//ML
-	// // 	else//ML
-	// // 	{//ML
-	// // 		for (int i = 0; i < 5; ++i)//ML
-	// // 		focusSensorOut[i] = -1;//ML During cooldown send invalid focus reading
-	// // 	}//ML
-	// // }
-	// // else {
-	// // 	for (int i = 0; i < 19; ++i)
-	// // 	{
-	// // 		trackSensorOut[i] = -1;
-	// // 	}
-	// // 	for (int i = 0; i < 5; ++i)
-	// // 	{
-	// // 		focusSensorOut[i] = -1;
-	// // 	}
-	// // }
-	//
-	// // update the value of opponent sensors
-	// // float oppSensorOut[36];
-	// // oppSens[0]->sensors_update(s);
-	// // for (int i = 0; i < 36; ++i) {
-	// // 	oppSensorOut[i] = oppSens[0]->getObstacleSensorOut(i);
-	// // 	if (getNoisy())
-	// // 	oppSensorOut[i] *= normRand(1, .02);
-	// // }
-	//
-	// float wheelSpinVel[4];
-	// for (int i=0; i<4; ++i) {
-	// 	wheelSpinVel[i] = car->_wheelSpinVel(i);
-	// }
-	//
-	// if (prevDist[0]<0) {
-	// 	prevDist[0] = car->race.distFromStartLine;
-	// }
-	//
-	// float curDistRaced = car->race.distFromStartLine - prevDist[0];
-	// prevDist[0] = car->race.distFromStartLine;
-	// if (curDistRaced>100) {
-	// 	curDistRaced -= curTrack->length;
-	// }
-	// if (curDistRaced<-100) {
-	// 	curDistRaced += curTrack->length;
-	// }
-	//
-	// distRaced[0] += curDistRaced;
-	//
-	// float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
-	//
-	// //    std::cerr << "totraced: " << totdist << std::endl;
-	//
-	// /**********************************************************************
-	// ****************** Building state string *****************************
-	// **********************************************************************/
-	//
-	// string stateString;
-	//
-	// stateString =  SimpleParser::stringify("angle", angle);
-	// stateString += SimpleParser::stringify("curLapTime", float(car->_curLapTime));
-	// stateString += SimpleParser::stringify("damage",        ( getDamageLimit() ? car->_dammage : car->_fakeDammage ) );
-	// stateString += SimpleParser::stringify("distFromStart", car->race.distFromStartLine);
-	// stateString += SimpleParser::stringify("totalDistFromStart", totdist);
-	// stateString += SimpleParser::stringify("distRaced", distRaced[0]);
-	// stateString += SimpleParser::stringify("fuel", car->_fuel);
-	// stateString += SimpleParser::stringify("gear", car->_gear);
-	// stateString += SimpleParser::stringify("lastLapTime", float(car->_lastLapTime));
-	// // stateString += SimpleParser::stringify("opponents", oppSensorOut, 36);
-	// stateString += SimpleParser::stringify("racePos", car->race.pos);
-	// stateString += SimpleParser::stringify("rpm", car->_enginerpm*10);
-	// stateString += SimpleParser::stringify("speedX", float(car->_speed_x  * 3.6));
-	// stateString += SimpleParser::stringify("speedY", float(car->_speed_y  * 3.6));
-	// stateString += SimpleParser::stringify("speedZ", float(car->_speed_z  * 3.6));
-	// stateString += SimpleParser::stringify("track", trackSensorOut, 19);
-	// stateString += SimpleParser::stringify("trackPos", dist_to_middle);
-	// stateString += SimpleParser::stringify("wheelSpinVel", wheelSpinVel, 4);
-	// stateString += SimpleParser::stringify("z", car->_pos_Z  - RtTrackHeightL(&(car->_trkPos)));
-	// stateString += SimpleParser::stringify("focus", focusSensorOut, 5);//ML
-
-	// printf( stateString.c_str());
-	// printf( "\n");
-
-	// End interception of human player data
-
 	// following code are from TORCS FAQ about the reset by robots
 	/*
 	bool restartRequested;
@@ -924,6 +778,11 @@ void ReStart(void) {
 
 		visionUpdate(); // put first image
 	}
+
+	// dosssman
+	// Reset timestep counter for episode
+	timestep = 0;
+	// end dosssman
 }
 
 void ReStop(void) {
@@ -963,204 +822,214 @@ int ReUpdate(void) {
 	// May generalize to record the data of all cars,
 	//for now, only record the data of thge first car, bot or human included
 
-	if( getRecordHuman()) {
-		// GfOut( "Update Callled\n");
-		// GfOut( "Current time %d;\n", ReInfo->_displayMode);
-		tSituation *s = ReInfo->s;
+	// Timestep check for optimized data logging
+	// printf( "### DEBUG: Time: %.2f; Timestep: %d\n", ReInfo->s->currentTime, timestep);
+	timestep += 1;
 
-		// TODO: Hook for player data collection
-
-		// tCarElt **cars = s->cars;
-		tCarElt *car = *(s->cars); // Takes the first car, ala index == 0
-		tTrack *curTrack = ReInfo->track;
-		// Create necessary variables for sensors updates
-		Sensors *trackSens[1];
-		trackSens[0] = new Sensors(car, 19);
-
-		ObstacleSensors *oppSens[1];
-		oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
-
-		Sensors *focusSens[1];//ML
-		focusSens[0] = new Sensors(car, 5);//ML
-		//
-		tdble prevDist[1] , distRaced[1];;
-
-		// GfOut( "Car index: %d;\n", car->index);
-
-		// DEBUG
-		// GfOut( "Found %d players\n;", s->raceInfo.ncars);
-
-		// {
-		// struct timeval timeVal;
-		// fd_set readSet;
-
-		// computing distance to middle
-		float dist_to_middle = 2*car->_trkPos.toMiddle/(car->_trkPos.seg->width);
-		// computing the car angle wrt the track axis
-		float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
-		NORM_PI_PI(angle); // normalize the angle between -PI and + PI
-
-		// //Update focus sensors' angle
-		for (int i = 0; i < 5; ++i) {
-			focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
-		}
-
-		// update the value of track sensors only as long as the car is inside the track
-		float trackSensorOut[19];
-		float focusSensorOut[5];//ML
-
-		if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
-			//TODO: Game freezes here
-			trackSens[0]->sensors_update();
-
-			for (int i = 0; i < 19; ++i)
-			{
-				trackSensorOut[i] = trackSens[0]->getSensorOut(i);
-				// if (getNoisy())
-				// trackSensorOut[i] *= normRand(1,.1);
-			}
-			focusSens[0]->sensors_update();//ML
-			if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
-			&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
-			{//ML
-				for (int i = 0; i < 5; ++i)
-				{
-					focusSensorOut[i] = focusSens[0]->getSensorOut(i);
-					// if (getNoisy())
-					// focusSensorOut[i] *= normRand(1, .01);
-				}
-				car->_focusCD = car->_curLapTime + car->_curTime + 1.0;//ML Add cooldown [seconds]
-			}//ML
-			else//ML
-			{//ML
-				for (int i = 0; i < 5; ++i)//ML
-				focusSensorOut[i] = -1;//ML During cooldown send invalid focus reading
-			}//ML
-		}
-		else {
-			for (int i = 0; i < 19; ++i)
-			{
-				trackSensorOut[i] = -1;
-			}
-			for (int i = 0; i < 5; ++i)
-			{
-				focusSensorOut[i] = -1;
-			}
-		}
-
-		// update the value of opponent sensors
-		float oppSensorOut[36];
-
-		oppSens[0]->sensors_update(s);
-		for (int i = 0; i < 36; ++i) {
-			oppSensorOut[i] = oppSens[0]->getObstacleSensorOut(i);
-			// if (getNoisy())
-			// oppSensorOut[i] *= normRand(1, .02);
-		}
-
-		float wheelSpinVel[4];
-		for (int i=0; i<4; ++i) {
-			wheelSpinVel[i] = car->_wheelSpinVel(i);
-		}
-
-		if (prevDist[0]<0) {
-			prevDist[0] = car->race.distFromStartLine;
-		}
-
-		float curDistRaced = car->race.distFromStartLine - prevDist[0];
-		prevDist[0] = car->race.distFromStartLine;
-		if (curDistRaced>100) {
-			curDistRaced -= curTrack->length;
-		}
-		if (curDistRaced<-100) {
-			curDistRaced += curTrack->length;
-		}
-
-		distRaced[0] += curDistRaced;
-
-		float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
-
-		// Player data to Json object in car-> play_data
-
-		JsonNode **play_data = &car->play_data;
-
-		if( *play_data == NULL) {
-			// GfOut( "Palay data detect as null");
-			*play_data = json_mkarray();
-		}
-
-		JsonNode *step_data = json_mkobject();
-
-		// Building the step data, self explanatory
-		json_append_member( step_data, "angle", json_mknumber( (double) angle));
-		json_append_member( step_data, "curLapTime",
-		 	json_mknumber(float(car->_curLapTime)));
-		json_append_member( step_data, "damage",
-		 	json_mknumber( ( getDamageLimit() ? car->_dammage : car->_fakeDammage )));
-		json_append_member( step_data, "totalDistFromStart",
-		 	json_mknumber( totdist));
-		json_append_member( step_data, "distRaced", json_mknumber( distRaced[0] ));
-		json_append_member( step_data, "fuel", json_mknumber( car->_fuel));
-		json_append_member( step_data, "gear", json_mknumber( car->_gear));
-		json_append_member( step_data, "lastLapTime",
-		 	json_mknumber( double( car->_lastLapTime)));
-
-		JsonNode *jOpponents = json_mkarray();
-		for( int i = 0; i < 36; ++i)
-			json_append_element( jOpponents, json_mknumber( double( oppSensorOut[i])));
-		json_append_member( step_data, "opponents", jOpponents);
-
-		json_append_member( step_data, "racePos", json_mknumber( car->race.pos));
-		json_append_member( step_data, "rpm",
-		 	json_mknumber( car->_enginerpm * 10));
-		json_append_member( step_data, "speedX", json_mknumber( double( 3.6 * car->_speed_x)));
-		json_append_member( step_data, "speedY", json_mknumber( double( 3.6 * car->_speed_y)));
-		json_append_member( step_data, "speedZ", json_mknumber( double( 3.6 * car->_speed_z)));
-
-		JsonNode *jTrackSensorOut = json_mkarray();
-		for( int i = 0; i < 19; ++i)
-			json_append_element( jTrackSensorOut,
-				 	json_mknumber( double( trackSensorOut[i])));
-
-		json_append_member( step_data, "track", jTrackSensorOut);
-		json_append_member( step_data, "trackPos", json_mknumber( dist_to_middle));
-
-		JsonNode *jWheelSpinVel = json_mkarray();
-		for( int i =0; i < 4; ++i)
-			json_append_element( jWheelSpinVel,
-				json_mknumber( double( wheelSpinVel[i])));
-
-		json_append_member( step_data, "wheelSpinVel", jWheelSpinVel);
-		json_append_member( step_data, "z", json_mknumber(
-		 	double( car->_pos_Z - RtTrackHeightL(&(car->_trkPos)))));
-
-		JsonNode *jFocusSensorOut = json_mkarray();
-		for( int i = 0; i < 5; ++i)
-			json_append_element( jFocusSensorOut,
-				json_mknumber( double( focusSensorOut[i])));
-
-		json_append_member( step_data, "focus", jFocusSensorOut);
-
-		json_append_member( step_data, "steer",
-		 	json_mknumber( 1.0 * float( - car->ctrl.steer)));
-		json_append_member( step_data, "accel",
-		 	json_mknumber( 1.0 * float( car->ctrl.accelCmd - car->ctrl.brakeCmd)));
-
-		// DEBUG
-		// printf( "# DEBUG: Steer :%.2f - Accel: %.2f - Brake: %.2f\n",
-		// 	car->ctrl.steer, car->ctrl.accelCmd, car->ctrl.brakeCmd);
-		// printf( json_encode( step_data));
-		// printf( "\n\n");
-
-		// Append step data toplay data array
-		json_append_element(*play_data, step_data);
-
-		// printf( json_encode( *play_data));
-		// printf("\n");
-
-		// End interception of human player data
-		// end dosssman
-	}
+	// if( getRecordHuman()) {
+	// 	// GfOut( "Update Callled\n");
+	// 	// GfOut( "Current time %d;\n", ReInfo->_displayMode);
+	// 	tSituation *s = ReInfo->s;
+	//
+	// 	// TODO: Hook for player data collection
+	//
+	// 	// tCarElt **cars = s->cars;
+	// 	tCarElt *car = *(s->cars); // Takes the first car, ala index == 0
+	// 	tTrack *curTrack = ReInfo->track;
+	// 	// Create necessary variables for sensors updates
+	// 	Sensors *trackSens[1];
+	// 	trackSens[0] = new Sensors(car, 19);
+	//
+	// 	ObstacleSensors *oppSens[1];
+	// 	oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
+	//
+	// 	Sensors *focusSens[1];//ML
+	// 	focusSens[0] = new Sensors(car, 5);//ML
+	// 	//
+	// 	tdble prevDist[1] , distRaced[1];;
+	//
+	// 	// GfOut( "Car index: %d;\n", car->index);
+	//
+	// 	// DEBUG
+	// 	// GfOut( "Found %d players\n;", s->raceInfo.ncars);
+	//
+	// 	// {
+	// 	// struct timeval timeVal;
+	// 	// fd_set readSet;
+	//
+	// 	// computing distance to middle
+	// 	float dist_to_middle = 2*car->_trkPos.toMiddle/(car->_trkPos.seg->width);
+	// 	// computing the car angle wrt the track axis
+	// 	float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
+	// 	NORM_PI_PI( angle); // normalize the angle between -PI and + PI
+	//
+	// 	// //Update focus sensors' angle
+	// 	for (int i = 0; i < 5; ++i) {
+	// 		focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
+	// 	}
+	//
+	// 	// update the value of track sensors only as long as the car is inside the track
+	// 	float trackSensorOut[19];
+	// 	float focusSensorOut[5];//ML
+	//
+	// 	if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
+	// 		//TODO: Game freezes here
+	// 		trackSens[0]->sensors_update();
+	//
+	// 		for (int i = 0; i < 19; ++i)
+	// 		{
+	// 			trackSensorOut[i] = trackSens[0]->getSensorOut(i);
+	// 			// if (getNoisy())
+	// 			// trackSensorOut[i] *= normRand(1,.1);
+	// 		}
+	// 		focusSens[0]->sensors_update();//ML
+	// 		if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
+	// 		&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
+	// 		{//ML
+	// 			for (int i = 0; i < 5; ++i)
+	// 			{
+	// 				focusSensorOut[i] = focusSens[0]->getSensorOut(i);
+	// 				// if (getNoisy())
+	// 				// focusSensorOut[i] *= normRand(1, .01);
+	// 			}
+	// 			car->_focusCD = car->_curLapTime + car->_curTime + 1.0;//ML Add cooldown [seconds]
+	// 		}//ML
+	// 		else//ML
+	// 		{//ML
+	// 			for (int i = 0; i < 5; ++i)//ML
+	// 			focusSensorOut[i] = -1;//ML During cooldown send invalid focus reading
+	// 		}//ML
+	// 	}
+	// 	else {
+	// 		for (int i = 0; i < 19; ++i)
+	// 		{
+	// 			trackSensorOut[i] = -1;
+	// 		}
+	// 		for (int i = 0; i < 5; ++i)
+	// 		{
+	// 			focusSensorOut[i] = -1;
+	// 		}
+	// 	}
+	//
+	// 	// update the value of opponent sensors
+	// 	float oppSensorOut[36];
+	//
+	// 	oppSens[0]->sensors_update(s);
+	// 	for (int i = 0; i < 36; ++i) {
+	// 		oppSensorOut[i] = oppSens[0]->getObstacleSensorOut(i);
+	// 		// if (getNoisy())
+	// 		// oppSensorOut[i] *= normRand(1, .02);
+	// 	}
+	//
+	// 	float wheelSpinVel[4];
+	// 	for (int i=0; i<4; ++i) {
+	// 		wheelSpinVel[i] = car->_wheelSpinVel(i);
+	// 	}
+	//
+	// 	if (prevDist[0]<0) {
+	// 		prevDist[0] = car->race.distFromStartLine;
+	// 	}
+	//
+	// 	float curDistRaced = car->race.distFromStartLine - prevDist[0];
+	// 	prevDist[0] = car->race.distFromStartLine;
+	// 	if (curDistRaced>100) {
+	// 		curDistRaced -= curTrack->length;
+	// 	}
+	// 	if (curDistRaced<-100) {
+	// 		curDistRaced += curTrack->length;
+	// 	}
+	//
+	// 	distRaced[0] += curDistRaced;
+	//
+	// 	float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
+	//
+	// 	// Player data to Json object in car-> play_data
+	//
+	// 	JsonNode **play_data = &car->play_data;
+	//
+	// 	if( *play_data == NULL) {
+	// 		// GfOut( "Palay data detect as null");
+	// 		*play_data = json_mkarray();
+	// 	}
+	//
+	// 	JsonNode *step_data = json_mkobject();
+	//
+	// 	// Building the step data, self explanatory
+	// 	json_append_member( step_data, "angle", json_mknumber( (double) angle));
+	// 	json_append_member( step_data, "curLapTime",
+	// 	 	json_mknumber(float(car->_curLapTime)));
+	// 	json_append_member( step_data, "damage",
+	// 	 	json_mknumber( ( getDamageLimit() ? car->_dammage : car->_fakeDammage )));
+	// 	json_append_member( step_data, "totalDistFromStart",
+	// 	 	json_mknumber( totdist));
+	// 	json_append_member( step_data, "distRaced", json_mknumber( distRaced[0] ));
+	// 	json_append_member( step_data, "fuel", json_mknumber( car->_fuel));
+	// 	json_append_member( step_data, "gear", json_mknumber( car->_gear));
+	// 	json_append_member( step_data, "lastLapTime",
+	// 	 	json_mknumber( double( car->_lastLapTime)));
+	//
+	// 	JsonNode *jOpponents = json_mkarray();
+	// 	for( int i = 0; i < 36; ++i)
+	// 		json_append_element( jOpponents, json_mknumber( double( oppSensorOut[i])));
+	// 	json_append_member( step_data, "opponents", jOpponents);
+	//
+	// 	json_append_member( step_data, "racePos", json_mknumber( car->race.pos));
+	// 	json_append_member( step_data, "rpm",
+	// 	 	json_mknumber( car->_enginerpm * 10));
+	// 	json_append_member( step_data, "speedX", json_mknumber( double( 3.6 * car->_speed_x)));
+	// 	json_append_member( step_data, "speedY", json_mknumber( double( 3.6 * car->_speed_y)));
+	// 	json_append_member( step_data, "speedZ", json_mknumber( double( 3.6 * car->_speed_z)));
+	//
+	// 	JsonNode *jTrackSensorOut = json_mkarray();
+	// 	for( int i = 0; i < 19; ++i)
+	// 		json_append_element( jTrackSensorOut,
+	// 			 	json_mknumber( double( trackSensorOut[i])));
+	//
+	// 	json_append_member( step_data, "track", jTrackSensorOut);
+	// 	json_append_member( step_data, "trackPos", json_mknumber( dist_to_middle));
+	//
+	// 	JsonNode *jWheelSpinVel = json_mkarray();
+	// 	for( int i =0; i < 4; ++i)
+	// 		json_append_element( jWheelSpinVel,
+	// 			json_mknumber( double( wheelSpinVel[i])));
+	//
+	// 	json_append_member( step_data, "wheelSpinVel", jWheelSpinVel);
+	// 	json_append_member( step_data, "z", json_mknumber(
+	// 	 	double( car->_pos_Z - RtTrackHeightL(&(car->_trkPos)))));
+	//
+	// 	JsonNode *jFocusSensorOut = json_mkarray();
+	// 	for( int i = 0; i < 5; ++i)
+	// 		json_append_element( jFocusSensorOut,
+	// 			json_mknumber( double( focusSensorOut[i])));
+	//
+	// 	json_append_member( step_data, "focus", jFocusSensorOut);
+	//
+	// 	json_append_member( step_data, "steer",
+	// 	 	json_mknumber( 1.0 * float( - car->ctrl.steer)));
+	// 	json_append_member( step_data, "accel",
+	// 	 	json_mknumber( 1.0 * float( car->ctrl.accelCmd - car->ctrl.brakeCmd)));
+	// 	// Compute the reward in case of distance only
+	// 	double sp = double( 3.6 * car->_speed_x);
+	// 	double reward = ( double) ( sp * angle);
+	// 	json_append_member( step_data, "reward",
+	// 		json_mknumber( double( cos( angle) * 3.6 * car->_speed_x)));
+	//
+	// 	// DEBUG
+	// 	printf( "# DEBUG: Steer :%.2f - Accel: %.2f - Brake: %.2f\n",
+	// 			car->ctrl.steer, car->ctrl.accelCmd, car->ctrl.brakeCmd);
+	// 	// printf( json_encode( step_data));
+	// 	// printf( "\n\n");
+	// 	// printf( "step rew: %.6f\n", float( cos( angle) * 3.6 * car->_speed_x));
+	//
+	// 	// Append step data toplay data array
+	// 	json_append_element(*play_data, step_data);
+	//
+	// 	// printf( json_encode( *play_data));
+	// 	// printf("\n");
+	//
+	// 	// End interception of human player data
+	// 	// end dosssman
+	// }
 
 	double 		t;
 	tRmMovieCapture	*capture;
@@ -1243,11 +1112,17 @@ int ReUpdate(void) {
 		//		  }
 		STOP_PROFILE("ReUpdate");
 	}
-	else // text only
-	{
+	else { // text only
 		ReOneStep(RCM_MAX_DT_SIMU);
 		START_PROFILE("ReUpdate");
 		STOP_PROFILE("ReUpdate");
+	}
+
+	// dosssman
+	// Forced restart, to next episode RL wise
+	if( getRecordHuman() && timestep >= REC_TIMESTEP_LIMIT) {
+		printf( "### DEBUG: Record Tmstp limit reached, attempt to reset and start new episode\n" );
+		ReInfo->s->_raceState = RM_RACE_ENDED;
 	}
 
 	return RM_ASYNC;
@@ -1279,7 +1154,6 @@ void ReTimeMod (void *vcmd) {
 }
 
 // Utils function Impl
-
 double normRand(double avg,double std) {
   double x1, x2, w, y1, y2;
 

@@ -58,6 +58,10 @@ extern bool getRecordHuman();
 
 extern void init_rec_session_start();
 extern char *getRecSessionStartStr();
+
+#define REC_TIMESTEP_LIMIT 1000
+#define REC_EPISODE_LIMIT 200
+
 // end dosssman
 
 extern void GfInit(void);

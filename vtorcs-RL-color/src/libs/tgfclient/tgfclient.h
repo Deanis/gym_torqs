@@ -1,10 +1,10 @@
 /***************************************************************************
-                    tgfclient.h -- Interface file for The Gaming Framework                                    
-                             -------------------                                         
+                    tgfclient.h -- Interface file for The Gaming Framework
+                             -------------------
     created              : Fri Aug 13 22:32:14 CEST 1999
-    copyright            : (C) 1999 by Eric Espie                         
-    email                : torcs@free.fr   
-    version              : $Id: tgfclient.h,v 1.3.2.1 2008/08/16 14:12:08 berniw Exp $                                  
+    copyright            : (C) 1999 by Eric Espie
+    email                : torcs@free.fr
+    version              : $Id: tgfclient.h,v 1.3.2.1 2008/08/16 14:12:08 berniw Exp $
  ***************************************************************************/
 
 /***************************************************************************
@@ -16,7 +16,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/** @file   
+/** @file
     	The Gaming Framework API (client part).
     @author	<a href=mailto:torcs@free.fr>Eric Espie</a>
     @version	$Id: tgfclient.h,v 1.3.2.1 2008/08/16 14:12:08 berniw Exp $
@@ -34,7 +34,7 @@
 
 extern void GfInitClient(void);
 
-/******************** 
+/********************
  * Screen Interface *
  ********************/
 
@@ -116,9 +116,9 @@ extern void GfuiIdle(void);
 
 /* Screen management */
 extern void *GfuiScreenCreate(void);
-extern void *GfuiScreenCreateEx(float *bgColor, 
-				void *userDataOnActivate, tfuiCallback onActivate, 
-				void *userDataOnDeactivate, tfuiCallback onDeactivate, 
+extern void *GfuiScreenCreateEx(float *bgColor,
+				void *userDataOnActivate, tfuiCallback onActivate,
+				void *userDataOnDeactivate, tfuiCallback onDeactivate,
 				int mouseAllowed);
 extern void GfuiScreenRelease(void *screen);
 extern void GfuiScreenActivate(void *screen);
@@ -171,7 +171,7 @@ extern void GfuiUnSelectCurrent(void);
 #define GFUI_FONT_MEDIUM_C	6
 #define GFUI_FONT_SMALL_C	7
 #define GFUI_FONT_DIGIT		8
-extern int GfuiLabelCreate(void *scr, char *text, 
+extern int GfuiLabelCreate(void *scr, char *text,
 			int font, int x, int y, int align, int maxlen);
 extern int GfuiLabelCreateEx(void *scr, char *text, float *fgColor, int font, int x, int y, int align, int maxlen);
 
@@ -190,14 +190,14 @@ extern int  GfuiFontWidth(int font, const char *text);
 #define GFUI_BTNSZ	300
 extern int GfuiButtonCreate(void *scr, char *text, int font,
 			    int x, int y, int width, int align, int mouse,
-			    void *userDataOnPush, tfuiCallback onPush, 
+			    void *userDataOnPush, tfuiCallback onPush,
 			    void *userDataOnFocus, tfuiCallback onFocus, tfuiCallback onFocusLost);
 extern int GfuiButtonStateCreate(void *scr, char *text, int font, int x, int y, int width, int align, int mouse,
-				 void *userDataOnPush, tfuiCallback onPush, 
+				 void *userDataOnPush, tfuiCallback onPush,
 				 void *userDataOnFocus, tfuiCallback onFocus, tfuiCallback onFocusLost);
 extern int GfuiGrButtonCreate(void *scr, char *disabled, char *enabled, char *focused, char *pushed,
 			      int x, int y, int align, int mouse,
-			      void *userDataOnPush, tfuiCallback onPush, 
+			      void *userDataOnPush, tfuiCallback onPush,
 			      void *userDataOnFocus, tfuiCallback onFocus, tfuiCallback onFocusLost);
 
 extern void GfuiButtonSetText(void *scr, int id, char *text);
@@ -222,7 +222,7 @@ extern char *GfuiScrollListGetElement(void *scr, int Id, int index, void **userD
 
 /* scroll bars */
 extern int GfuiScrollBarCreate(void *scr, int x, int y, int align, int width, int orientation,
-			       int min, int max, int len, int start, 
+			       int min, int max, int len, int start,
 			       void *userData, tfuiSBCallback onScroll);
 extern void GfuiScrollBarPosSet(void *scr, int id, int min, int max, int len, int start);
 extern int GfuiScrollBarPosGet(void *scr, int id);
@@ -301,7 +301,4 @@ extern char *GfctrlGetNameByRef(int type, int index);
 
 extern int GfuiGlutExtensionSupported(char *str);
 
-
 #endif /* __TGFCLIENT__H__ */
-
-
