@@ -49,10 +49,10 @@
   <section name="Drivers">
     <attnum name="maximum number" val="20"/>
     <attstr name="focused module" val="inferno"/>
-    <attnum name="focused idx" val="1"/>
+    <attnum name="focused idx" val="0"/>
     <section name="1">
       <attnum name="idx" val="0"/>
-      <attstr name="module" val="inferno"/>
+      <attstr name="module" val="inferno" />
     </section>
     <section name="2">
       <attnum name="idx" val="1"/>
