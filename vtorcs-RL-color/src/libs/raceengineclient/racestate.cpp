@@ -427,9 +427,10 @@ void append_step_data() {
 
 		for (int i = 0; i < 19; ++i)
 		{
-			trackSensorOut[i] = trackSens[0]->getSensorOut(i);
-			if (getNoisy())
-			trackSensorOut[i] *= normRand(1,.1);
+			// Normalize
+			trackSensorOut[i] = trackSens[0]->getSensorOut(i) / 200.0;
+			// if (getNoisy())
+			// 	trackSensorOut[i] *= normRand(1,.1);
 		}
 		focusSens[0]->sensors_update();//ML
 		if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
@@ -492,16 +493,16 @@ void append_step_data() {
 	// float totdist = curTrack->length * (car->race.laps -1) + car->race.distFromStartLine;
 	// Player data to Json object in car-> play_data
 
-	// CSV style logging
+	// CSV style logging with corresponding Torcs normalizing
 
-	obs += SimpleParser::stringifym( angle); //angle
-	obs += SimpleParser::stringifym( trackSensorOut, 19); // track
-	obs += SimpleParser::stringifym( dist_to_middle); // trackPos
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_x);
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_y);
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_z);
+	obs += SimpleParser::stringifym( angle / 3.1416); //angle, Reging
+	obs += SimpleParser::stringifym( trackSensorOut, 19); // track, Reg in colect
+	obs += SimpleParser::stringifym( dist_to_middle / 1.0); // trackPos, Reging
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_x / 300.0); // Reging
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_y / 300.0); // Reging
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_z / 300.0); // Reging
 	obs += SimpleParser::stringifym( wheelSpinVel, 4); // wheelspinvel
-	obs += SimpleParser::stringifym( car->_enginerpm * 10);
+	obs += SimpleParser::stringifym( car->_enginerpm / 1000); // Funny reg to match GymTorcs
 	obs += SimpleParser::stringifym( oppSensorOut, 36); // opp sensoirs
 
 	// TODO Free Pointers of observations vars
