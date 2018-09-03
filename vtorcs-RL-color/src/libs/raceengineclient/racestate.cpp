@@ -515,7 +515,8 @@ void append_step_data() {
 		- car->ctrl.brakeCmd));
 
 	// XXX: Compute the rwrd in case of dist only, must match reward in gym torcs
-	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle));
+	// Normalizing angle to compute reard too -_-'
+	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle / 3.1416));
 
 	// open_save_files();
 	// printf( "### DEBUG: Reached file writing\n");
