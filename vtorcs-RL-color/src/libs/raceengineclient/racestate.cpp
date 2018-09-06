@@ -67,10 +67,12 @@ static int ep_counter = 0;
 static char filepath[1024];
 char save_dir[196];
 
+// Filename for respective data files
 char obs_file[256] = {};
 char acs_file[256] = {};
 char rews_file[256] = {};
 
+// File objects for respective datafiles
 FILE *obs_f = NULL;
 FILE *acs_f = NULL;
 FILE *rews_f = NULL;
@@ -130,22 +132,25 @@ void ReStateManage(void) {
 				if( getRecordHuman()) {
 					printf( "#### DEBUG: Initializing save paths\n");
 					init_save_paths();
+					// TODO: If cars already loaded, declare the sensors variables here
+					
 				}
 				break;
 
 			case RE_STATE_PRE_RACE:
 				//				printf("RE_STATE_PRE_RACE\n");
 				if (getTextOnly()==false)
-				GfOut("RaceEngine: state = RE_STATE_PRE_RACE\n");
-				mode = RePreRace();
-				if (mode & RM_NEXT_STEP) {
-					ReInfo->_reState = RE_STATE_RACE_START;
-				}
+					GfOut("RaceEngine: state = RE_STATE_PRE_RACE\n");
 
 				if( getRecordHuman()) {
 					printf( "### DEBUG: Current episode: %d / %d\n", ep_counter,
 					 	REC_EPISODE_LIMIT);
 					// open_save_files();
+				}
+
+				mode = RePreRace();
+				if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_RACE_START;
 				}
 				break;
 
@@ -153,10 +158,11 @@ void ReStateManage(void) {
 				//				printf("RE_STATE_RACE_START\n");
 				if (getTextOnly()==false)
 					GfOut("RaceEngine: state = RE_STATE_RACE_START\n");
-					mode = ReRaceStart();
-					if (mode & RM_NEXT_STEP) {
-						ReInfo->_reState = RE_STATE_RACE;
-					}
+
+				mode = ReRaceStart();
+				if (mode & RM_NEXT_STEP) {
+					ReInfo->_reState = RE_STATE_RACE;
+				}
 				break;
 
 			case RE_STATE_RACE:
@@ -184,6 +190,15 @@ void ReStateManage(void) {
 				/* Interrupted by player */
 				// dosssman
 				// TODO: Dump player data
+
+				if( getRecordHuman()) {
+					// dump_play_data();
+					// Insert gotoline in the save file
+					printf( "##### DEBUG: Reached data appending");
+					append_episode_data();
+					// close_save_files();
+				}
+
 				mode = ReRaceStop();
 				if (mode & RM_NEXT_STEP) {
 					if (RESTART==1)
@@ -208,20 +223,20 @@ void ReStateManage(void) {
 				//				printf("RE_STATE_RACE_END\n");
 				if (getTextOnly()==false)
 					GfOut("RaceEngine: state = RE_STATE_RACE_END\n");
-
 				// mode = ReRaceEnd();
 				// dosssman
 				// dumping data
 				if( getRecordHuman()) {
 					// dump_play_data();
 					// Insert gotoline in the save file
+					printf( "##### DEBUG: Reached data appending");
 					append_episode_data();
 					// close_save_files();
 				}
 
 				ep_counter++;
 
-				if( getRecordHuman() && ep_counter >= REC_EPISODE_LIMIT - 1) {
+				if( getRecordHuman() && ( REC_EPISODE_LIMIT > 0 && ep_counter >= REC_EPISODE_LIMIT)) {
 					printf( "### DEBUG: Episode limit reached, shutting down the game !\n" );
 					ReInfo->s->_raceState = RM_RACE_ENDED;
 					ReInfo->_reState=RE_STATE_EXIT;
@@ -237,6 +252,10 @@ void ReStateManage(void) {
 				{
 					// dosssman
 					// TODO: Dump player data
+					if( getRecordHuman()) {
+						printf( "### DEBUG: Episode ended from outside Torcs !\n" );
+
+					}
 
 					// Original
 					ReInfo->_reState=RE_STATE_EXIT;
@@ -330,53 +349,6 @@ void ReStateApply(void *vstate) {
 	ReStateManage();
 }
 
-// dosssman
-// Dumping firsts car play_data
-// May be upgraded to all cars
-void dump_play_data() {
-
-	// Get car and play data
-	tSituation *s = ReInfo->s;
-	tCarElt *car = *(s->cars); // Takes the first car, mind you
-	JsonNode *play_data = car->play_data;
-
-	struct stat st = {0};
-	// Generate respective folder name
-	sprintf( filepath, "/tmp/torcs_play_data");
-
-	// Creating root folder for torcs_play_data
-	if (stat( filepath, &st) == -1) {
-    mkdir( filepath, 0777);
-	}
-
-	//Creating folder for currentr game session
-	sprintf( filepath, "%s/%s", filepath, getRecSessionStartStr());
-
-	if (stat( filepath, &st) == -1) {
-    mkdir( filepath, 0777);
-	}
-
-	// Generating filename for play_data;
-	sprintf( filepath, "%s/%d.json", filepath, ep_counter);
-
-	printf( "### DEBUG: Creating file\n");
-	printf( "### DEBUG: %s\n", filepath);
-
-	FILE *f = fopen( filepath, "w");
-
-	if( f == NULL)
-		printf("### DEBUG: Failed to created file\n");
-
-	fprintf( f, json_encode( play_data));
-
-	printf( "### DEBUG: Dumped JSON play_data: %s\n\n", filepath);
-
-	// Attempt to mitigate the memory leak
-	json_delete( play_data);
-
-	fclose(f);
-}
-
 //
 void append_step_data() {
 	// Appending step data
@@ -385,17 +357,31 @@ void append_step_data() {
 	// tCarElt **cars = s->cars;
 	tCarElt *car = *(s->cars); // Takes the first car, ala index == 0
 	tTrack *curTrack = ReInfo->track;
+
+	// Setup track angles !!!
+	float trackSensAngle[19] = { -45.0, -19, -12, -7, -4, -2.5, -1.7, -1, -.5, 0,
+		.5, 1, 1.7, 2.5, 4, 7, 12, 19, 45};
+
+	// TODO: Delete if useless
+	Sensors *focusSens[1];//ML
+	focusSens[0] = new Sensors(car, 5);//ML
+	// //Update focus sensors' angle
+	for (int i = 0; i < 5; ++i) {
+		focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
+	}
+
 	// Create necessary variables for sensors updates
 	Sensors *trackSens[1];
 	trackSens[0] = new Sensors(car, 19);
 
+	for (int i = 0; i < 19; ++i) {
+		trackSens[0]->setSensor(i,trackSensAngle[i], 200);
+	}
+
 	ObstacleSensors *oppSens[1];
 	oppSens[0] = new ObstacleSensors(36, curTrack, car, s, 200.);
 
-	Sensors *focusSens[1];//ML
-	focusSens[0] = new Sensors(car, 5);//ML
-
-	tdble prevDist[1] , distRaced[1];
+	tdble prevDist[1] = { -1}, distRaced[1];
 
 	// GfOut( "Car index: %d;\n", car->index);
 
@@ -412,7 +398,7 @@ void append_step_data() {
 	float angle =  RtTrackSideTgAngleL(&(car->_trkPos)) - car->_yaw;
 	NORM_PI_PI( angle); // normalize the angle between -PI and + PI
 
-	// //Update focus sensors' angle
+	//Update focus sensors' angle
 	for (int i = 0; i < 5; ++i) {
 		focusSens[0]->setSensor(i,(car->_focusCmd)+i-2,200);
 	}
@@ -422,16 +408,16 @@ void append_step_data() {
 	float focusSensorOut[5];//ML
 
 	if (dist_to_middle<=1.0 && dist_to_middle >=-1.0 ) {
-		//TODO: Game freezes here
 		trackSens[0]->sensors_update();
 
 		for (int i = 0; i < 19; ++i)
 		{
-			// Normalize
+			// Normalize for torcs
 			trackSensorOut[i] = trackSens[0]->getSensorOut(i) / 200.0;
-			// if (getNoisy())
-			// 	trackSensorOut[i] *= normRand(1,.1);
+			if (getNoisy())
+				trackSensorOut[i] *= normRand(1,.1);
 		}
+
 		focusSens[0]->sensors_update();//ML
 		if ((car->_focusCD <= car->_curLapTime + car->_curTime)//ML Only send focus sensor reading if cooldown is over
 		&& (car->_focusCmd != 360))//ML Only send focus reading if requested by client
@@ -515,9 +501,17 @@ void append_step_data() {
 		- car->ctrl.brakeCmd));
 
 	// XXX: Compute the rwrd in case of dist only, must match reward in gym torcs
-	// Normalizing angle to compute reard too -_-'
-	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle / 3.1416));
+	// Unnormalized angle to compute reard too -_-'
+	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle));
 
+	// printf( "### DEBUG: Track sensor data output\n");
+	// for( ushort i = 0; i < 19; i++) {
+	// 	printf( "\tIndex %d: %0.32f\n", i, trackSensorOut[i]);
+	// }
+	printf( "### DEBUG: WheelSpin sensor data output\n");
+	for( ushort i = 0; i < 4; i++) {
+		printf( "\tIndex %d: %0.32f\n", i, wheelSpinVel[i]);
+	}
 	// open_save_files();
 	// printf( "### DEBUG: Reached file writing\n");
 	// printf( "### DEBUG: Obs bfore writing: %s\n", obs.c_str());
@@ -600,8 +594,7 @@ void close_save_files() {
 }
 // end dosssman
 
-double normRand(double avg,double std)
-{
+double normRand(double avg,double std) {
 	double x1, x2, w, y1, y2;
 
 	do {
@@ -614,4 +607,53 @@ double normRand(double avg,double std)
 	y1 = x1 * w;
 	y2 = x2 * w;
 	return y1*std + avg;
+}
+
+
+// dosssman
+// Dumping firsts car play_data
+// May be upgraded to all cars
+// TODO: Delete if useless
+void dump_play_data() {
+
+	// Get car and play data
+	tSituation *s = ReInfo->s;
+	tCarElt *car = *(s->cars); // Takes the first car, mind you
+	JsonNode *play_data = car->play_data;
+
+	struct stat st = {0};
+	// Generate respective folder name
+	sprintf( filepath, "/tmp/torcs_play_data");
+
+	// Creating root folder for torcs_play_data
+	if (stat( filepath, &st) == -1) {
+    mkdir( filepath, 0777);
+	}
+
+	//Creating folder for currentr game session
+	sprintf( filepath, "%s/%s", filepath, getRecSessionStartStr());
+
+	if (stat( filepath, &st) == -1) {
+    mkdir( filepath, 0777);
+	}
+
+	// Generating filename for play_data;
+	sprintf( filepath, "%s/%d.json", filepath, ep_counter);
+
+	printf( "### DEBUG: Creating file\n");
+	printf( "### DEBUG: %s\n", filepath);
+
+	FILE *f = fopen( filepath, "w");
+
+	if( f == NULL)
+		printf("### DEBUG: Failed to created file\n");
+
+	fprintf( f, json_encode( play_data));
+
+	printf( "### DEBUG: Dumped JSON play_data: %s\n\n", filepath);
+
+	// Attempt to mitigate the memory leak
+	json_delete( play_data);
+
+	fclose(f);
 }

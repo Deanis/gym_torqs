@@ -1120,7 +1120,7 @@ int ReUpdate(void) {
 
 	// dosssman
 	// Forced restart, to next episode RL wise
-	if( getRecordHuman() && timestep >= REC_TIMESTEP_LIMIT) {
+	if( getRecordHuman() && ( REC_TIMESTEP_LIMIT > 0 && timestep >= REC_TIMESTEP_LIMIT)) {
 		printf( "### DEBUG: Record Tmstp limit reached, attempt to reset and start new episode\n" );
 		ReInfo->s->_raceState = RM_RACE_ENDED;
 	}
