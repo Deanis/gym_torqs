@@ -604,6 +604,8 @@ void init_save_paths() {
 	strncat( strncat( obs_file, getenv( "TORCS_DATA_DIR"), sizeof( obs_file)), "/obs.csv", 8);
 	strncat( strncat( acs_file, getenv( "TORCS_DATA_DIR"), sizeof( acs_file)), "/acs.csv", 8);
 	strncat( strncat( rews_file, getenv( "TORCS_DATA_DIR"), sizeof( rews_file)), "/rews.csv", 9);
+
+	GfOut( "##### DEBUG: Save path inited");
 }
 
 void open_save_files() {
