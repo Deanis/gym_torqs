@@ -440,7 +440,7 @@ typedef struct CarElt
     tRmVisionImg* vision; // it's ugly, but I need it to be a pointer to share it with the car
     // dosssman - Data capture here
     // char *player_data; // Stroes the palyer data as a JsonNode ( ref. CCAN JSON library)
-    JsonNode *play_data;
+    // JsonNode *play_data;
 } tCarElt;
 
 
