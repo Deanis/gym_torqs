@@ -45,6 +45,23 @@ static double __SPEEDMULT__ = 1.0;
 // dosssman
 static bool __RECORD_HUMAN__;
 static char __RECORD_START_TIME__[32];
+// Data Recording variables
+static int __REC_TIMESTEP_LIMIT = -1, __REC_EPISODE_LIMIT = -1;
+
+int getRecTimestepLimit() {
+	return __REC_TIMESTEP_LIMIT;
+}
+void setRecTimestepLimit( const int timestep_limit) {
+	__REC_TIMESTEP_LIMIT = timestep_limit;
+}
+
+int getRecEpisodeLimit() {
+	return __REC_EPISODE_LIMIT;
+}
+void setRecEpisodeLimit( const int episode_limit) {
+	__REC_EPISODE_LIMIT = episode_limit;
+}
+// End recording dat vairbales
 
 void setRecordHuman(bool value) {
 	__RECORD_HUMAN__ = value;

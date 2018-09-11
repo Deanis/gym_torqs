@@ -170,9 +170,9 @@ void ReStateManage(void) {
 					GfOut("RaceEngine: state = RE_STATE_PRE_RACE\n");
 
 				if( getRecordHuman()) {
-						if( REC_EPISODE_LIMIT > 0)
+						if( getRecEpisodeLimit() > 0)
 							printf( "### DEBUG: [Recording] Current episode: %d / %d\n", ep_counter,
-						 		REC_EPISODE_LIMIT);
+						 		getRecEpisodeLimit());
 						else
 
 							printf( "### DEBUG: [Recording] Current episode: %d\n", ep_counter);
@@ -298,7 +298,7 @@ void ReStateManage(void) {
 
 				ep_counter++;
 
-				if( getRecordHuman() && ( REC_EPISODE_LIMIT > 0 && ep_counter >= REC_EPISODE_LIMIT)) {
+				if( getRecordHuman() && ( getRecEpisodeLimit() > 0 && ep_counter >= getRecEpisodeLimit())) {
 					printf( "### DEBUG: Episode limit reached, shutting down the game !\n" );
 					ReInfo->s->_raceState = RM_RACE_ENDED;
 					ReInfo->_reState=RE_STATE_EXIT;
@@ -558,6 +558,13 @@ void append_episode_data() {
 	// Appends episode data to the CSV file then clears the variables
 	// Basically goto newline and the data appending at the timestep level does
 	// rest
+	// DEBUG Show expert score
+	float ret_cum = 0.0;
+	for( ushort i = 0; i < getRecTimestepLimit(); i+=5) {
+		ret_cum += rews[i];
+	}
+
+	printf("#### DEBUG: Expert Score: %f", ret_cum);
 
 	// printf( "### DEBUG: Reached file writing episode end\n");
 	open_save_files();

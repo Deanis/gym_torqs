@@ -56,11 +56,17 @@ extern bool getTextOnly ();
 extern void setRecordHuman(bool value);
 extern bool getRecordHuman();
 
+extern int getRecTimestepLimit();
+extern void setRecTimestepLimit( const int);
+
+extern int getRecEpisodeLimit() ;
+extern void setRecEpisodeLimit( const int);
+
 extern void init_rec_session_start();
 extern char *getRecSessionStartStr();
 
-#define REC_TIMESTEP_LIMIT -1 //3600
-#define REC_EPISODE_LIMIT -1 //100
+// #define REC_TIMESTEP_LIMIT 3120 //3600
+// #define REC_EPISODE_LIMIT 1 //100
 
 // end dosssman
 
