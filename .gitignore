@@ -7,3 +7,12 @@ run.sh
 *.spec
 *.gch
 *torcs-bin
+vtorcs-RL-color/Make-config
+vtorcs-RL-color/src/modules/simu/simuv2/SOLID-2.0/src/libsolid.a
+vtorcs-RL-color/src/tools/accc/accc-bin
+vtorcs-RL-color/src/tools/nfs2ac/nfs2ac-bin
+vtorcs-RL-color/src/tools/nfsperf/nfsperf-bin
+vtorcs-RL-color/src/tools/texmapper/texmapper-bin
+vtorcs-RL-color/src/tools/trackgen/trackgen-bin
+vtorcs-RL-color/config.log
+vtorcs-RL-color/config.status
