@@ -521,6 +521,7 @@ void append_step_data() {
 	if ( car->priv.gear == -1)
 		accel_mult = -1;
 
+
 	acs += SimpleParser::stringifym(
 		float( accel_mult * car->ctrl.accelCmd));
 	// acs += SimpleParser::stringifym(
