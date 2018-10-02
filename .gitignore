@@ -14,5 +14,6 @@ vtorcs-RL-color/src/tools/nfs2ac/nfs2ac-bin
 vtorcs-RL-color/src/tools/nfsperf/nfsperf-bin
 vtorcs-RL-color/src/tools/texmapper/texmapper-bin
 vtorcs-RL-color/src/tools/trackgen/trackgen-bin
+vtorcs-RL-color/src/libs/txml/gennmtab/gennmtab
 vtorcs-RL-color/config.log
 vtorcs-RL-color/config.status

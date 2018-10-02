@@ -517,19 +517,19 @@ void append_step_data() {
 	// delete( focusSens[0]);
 
 	acs += SimpleParser::stringifym( float( car->ctrl.steer));
-	// float accel = car->ctrl.accelCmd;
-	// if( accel > 0.0) {
-	// 	accel = car->ctrl.accelCmd;
-	// } else {
-	// 	accel = car->ctrl.brakeCmd;
-	// }
-
-	// printf( "##### DEBUG Accel: %.4f -- Brak: %.4f\n", car->ctrl.accelCmd,
-	// 	car->ctrl.brakeCmd);
+	short int accel_mult = 1;
+	if ( car->priv.gear == -1)
+		accel_mult = -1;
 
 	acs += SimpleParser::stringifym(
-		float( car->ctrl.accelCmd - car->ctrl.brakeCmd));
+		float( accel_mult * car->ctrl.accelCmd));
+	// acs += SimpleParser::stringifym(
+	// 	float(car->ctrl.brakeCmd));
 	// acs += SimpleParser::stringifym( accel);
+
+	// printf( "# DEBUG: Steer: %.f - Accel: %.f - Brake: %.f - Gear %d\n",
+	//  	float( car->ctrl.steer), accel_mult * car->ctrl.accelCmd,
+	// 	car->ctrl.brakeCmd, car->priv.gear);
 
 	// XXX: Compute the rwrd in case of dist only, must match reward in gym torcs
 	// Unnormalized angle to compute reard too -_-'
