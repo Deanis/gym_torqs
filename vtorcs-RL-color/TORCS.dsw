@@ -1,5 +1,5 @@
 Microsoft Developer Studio Workspace File, Format Version 6.00
-# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELÖSCHT WERDEN!
+# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELï¿½SCHT WERDEN!
 
 ###############################################################################
 
@@ -46,6 +46,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name damned
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dummy
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name inferno
@@ -226,6 +229,24 @@ Package=<4>
 ###############################################################################
 
 Project: "damned"=.\src\drivers\damned\damned.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name robottools
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tgf
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "dummy"=.\src\drivers\dummy\dummy.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -554,4 +575,3 @@ Package=<3>
 }}}
 
 ###############################################################################
-
