@@ -61,7 +61,7 @@ static void endRace(int index, tCarElt *car, tSituation *s);
 extern "C" int damned(tModInfo *modInfo)
 {
 	int i;
-	
+
 	// Clear all structures.
 	memset(modInfo, 0, 10*sizeof(tModInfo));
 
@@ -134,4 +134,3 @@ static void shutdown(int index)
 {
 	delete driver[index];
 }
-
