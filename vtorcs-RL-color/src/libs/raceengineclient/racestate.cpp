@@ -204,7 +204,7 @@ void ReStateManage(void) {
 					curTrack = ReInfo->track;
 					// printf( "#### Collected track\n");
 
-					car = *(s->cars);
+					car = *(s->cars+getRecCarIndex());
 
 					// TODO: Delete if useless
 					// focusSens = new Sensors(car, 5);//ML
@@ -535,6 +535,8 @@ void append_step_data() {
 	// XXX: Compute the rwrd in case of dist only, must match reward in gym torcs
 	// Unnormalized angle to compute reard too -_-'
 	rews += SimpleParser::stringifym( 3.6 * car->_speed_x * cos( angle));
+	// printf( "Rew: %.3f\n",
+	//  	(3.6 * car->_speed_x * cos( angle)));
 
 	// printf( "### DEBUG: Track sensor data output\n");
 	// for( ushort i = 0; i < 19; i++) {
@@ -585,7 +587,7 @@ void append_episode_data() {
 	// if( getRecordHuman()) {
 	// 	printf( "#### DEBUG: Timestep %f\n", (float) rs_timestep);
 	// 	printf( "#### DEBUG: Timespent %f\n", (float) _);
-	// 	printf( "#### DEBUG: Sampling Rate( Game speed) = %f\n", rs_timestep / time_spent);
+		// printf( "#### DEBUG: Sampling Rate( Game speed) = %f\n", rs_timestep / time_spent);
 	// }
 }
 

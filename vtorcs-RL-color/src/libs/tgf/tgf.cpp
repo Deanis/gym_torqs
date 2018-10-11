@@ -44,6 +44,9 @@ static bool __VISION__ = false;
 static double __SPEEDMULT__ = 1.0;
 // dosssman
 static bool __RECORD_HUMAN__;
+static int __REC_CAR_INDEX__ = 0;
+// Car to monitor's index
+static int rec_index;
 static char __RECORD_START_TIME__[32];
 // Data Recording variables
 static int __REC_TIMESTEP_LIMIT = -1, __REC_EPISODE_LIMIT = -1;
@@ -60,6 +63,14 @@ int getRecEpisodeLimit() {
 }
 void setRecEpisodeLimit( const int episode_limit) {
 	__REC_EPISODE_LIMIT = episode_limit;
+}
+
+void setRecCarIndex( int value) {
+	__REC_CAR_INDEX__ = value;
+}
+
+int getRecCarIndex() {
+	return __REC_CAR_INDEX__;
 }
 // End recording dat vairbales
 

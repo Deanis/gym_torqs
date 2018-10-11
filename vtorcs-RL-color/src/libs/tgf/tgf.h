@@ -55,6 +55,8 @@ extern bool getTextOnly ();
 // Record player data support option
 extern void setRecordHuman(bool value);
 extern bool getRecordHuman();
+extern void setRecCarIndex( int value);
+extern int getRecCarIndex();
 
 extern int getRecTimestepLimit();
 extern void setRecTimestepLimit( const int);

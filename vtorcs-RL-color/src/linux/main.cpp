@@ -207,6 +207,9 @@ init_args(int argc, char **argv, const char **raceconfig) {
       setRecordHuman( true);
 
       i++;
+      // TODO Implement error managment
+      setRecCarIndex( atoi(argv[i]));
+      i++;
     }
     else if( strncmp(argv[i], "-rectimesteplim", 15) == 0) {
       if( !getRecordHuman()) {

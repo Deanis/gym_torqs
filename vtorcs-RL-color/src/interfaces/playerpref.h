@@ -2,7 +2,7 @@
 
     file                 : playerpref.h
     created              : Wed Mar 21 21:50:23 CET 2001
-    copyright            : (C) 2001 by Eric Espié
+    copyright            : (C) 2001 by Eric Espiï¿½
     email                : Eric.Espie@torcs.org
     version              : $Id: playerpref.h,v 1.10 2004/10/07 17:05:04 olethros Exp $
 
@@ -16,9 +16,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
-/** @file    
-    		
+
+/** @file
+
     @author	<a href=mailto:torcs@free.fr>Eric Espie</a>
     @version	$Id: playerpref.h,v 1.10 2004/10/07 17:05:04 olethros Exp $
 */
@@ -26,8 +26,10 @@
 #ifndef _PLAYERPREF_H_
 #define _PLAYERPREF_H_
 
-#define HM_DRV_FILE  		"drivers/human/human.xml"
-#define HM_PREF_FILE		"drivers/human/preferences.xml"
+#define HM_DRV_FILE  		"/home/z3r0/.torcs/drivers/human/human.xml"
+// dossman edit because Torcs couldn't autopmatically find the file
+// #define HM_PREF_FILE		"drivers/human/preferences.xml"
+#define HM_PREF_FILE		"/home/z3r0/.torcs/drivers/human/preferences.xml"
 
 #define	HM_SECT_JSPREF		"joystick"
 #define	HM_SECT_MOUSEPREF	"mouse"
@@ -119,7 +121,4 @@
 #define HM_VAL_MOUSE	"mouse"
 #define HM_VAL_KEYBOARD	"keyboard"
 
-#endif /* _PLAYERPREF_H_ */ 
-
-
-
+#endif /* _PLAYERPREF_H_ */

@@ -2,9 +2,9 @@
 
     file        : control.cpp
     created     : Thu Mar  6 22:01:33 CET 2003
-    copyright   : (C) 2003 by Eric Espi�                        
-    email       : eric.espie@torcs.org   
-    version     : $Id: control.cpp,v 1.3.2.1 2008/11/09 17:50:22 berniw Exp $                                  
+    copyright   : (C) 2003 by Eric Espi�
+    email       : eric.espie@torcs.org
+    version     : $Id: control.cpp,v 1.3.2.1 2008/11/09 17:50:22 berniw Exp $
 
  ***************************************************************************/
 
@@ -17,7 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/** @file   
+/** @file
     		Human control (joystick, mouse and keyboard).
     @author	<a href=mailto:eric.espie@torcs.org>Eric Espie</a>
     @version	$Id: control.cpp,v 1.3.2.1 2008/11/09 17:50:22 berniw Exp $
@@ -189,7 +189,7 @@ GfctrlGetNameByRef(int type, int index)
 {
     static char buf[4];
     int i;
-    
+
     switch (type) {
     case GFCTRL_TYPE_NOT_AFFECTED:
 	return NULL;
@@ -252,14 +252,14 @@ static void
 gfJoyFirstInit(void)
 {
     int index;
-    
+
     gfctrlJoyPresent = GFCTRL_JOY_NONE;
 
     for (index = 0; index < NUM_JOY; index++) {
 	if (js[index] == NULL) {
 	    js[index] = new jsJoystick(index);
 	}
-    
+
 	if (js[index]->notWorking()) {
 	    /* don't configure the joystick */
 	    js[index] = NULL;
@@ -287,7 +287,7 @@ GfctrlJoyInit(void)
     }
 
     joyInfo = (tCtrlJoyInfo *)calloc(1, sizeof(tCtrlJoyInfo));
-    
+
     return joyInfo;
 }
 
@@ -417,7 +417,7 @@ GfctrlMouseGetCurrent(tCtrlMouseInfo *mouseInfo)
     mouse = GfuiMouseInfo();
 
     mouseMove = (float)(refMouse.X - mouse->X);
-    
+
     if (mouseMove < 0) {
 	mouseInfo->ax[1] = -mouseMove;
 	mouseInfo->ax[0] = 0;
