@@ -443,7 +443,7 @@ void ReAddRacemanListButton(void *menuHandle) {
 			car = &(ReInfo->carList[i]);
 			car->_speed_x = speedInit;
 
-			printf( "### DEBUG: initdist: %.f\n", car->_initdist);
+			// printf( "### DEBUG: initdist: %.f\n", car->_initdist);
 
 			if( car->_initdist >= 0) {
 				startpos = ReInfo->track->length - (car->_initdist + (i / rows) * d2 + (i % rows) * d3);
