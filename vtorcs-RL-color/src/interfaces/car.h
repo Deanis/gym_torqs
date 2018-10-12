@@ -85,6 +85,9 @@ typedef struct {
     int		startRank;		/**< Car's starting position */
     int		driverType;		/**< Driver type */
     int		skillLevel;		/**< Driver's skill level (0=rookie -> 3=pro) */
+    // dosssman
+    float initdist;
+    // end dosssman
     tdble	iconColor[3];		/**< Car color in leaders board */
     t3Dd	dimension;		/**< Car's mesures */
     t3Dd	drvPos;			/**< Driver's position */
@@ -124,6 +127,7 @@ typedef struct {
 #define _exhaustNb	info.visualAttr.exhaustNb	/**< short cut to tVisualAttributes#exhaustNb */
 #define _exhaustPos	info.visualAttr.exhaustPos	/**< short cut to tVisualAttributes#exhaustPos */
 #define _exhaustPower	info.visualAttr.exhaustPower	/**< short cut to tVisualAttributes#exhaustPower */
+#define _initdist info.initdist
 
 #define RM_DRV_HUMAN	1
 #define RM_DRV_ROBOT	2

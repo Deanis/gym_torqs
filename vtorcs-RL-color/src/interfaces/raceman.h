@@ -256,6 +256,9 @@ typedef struct RmInfo
 #define RM_ATTR_FOCUSEDIDX	"focused idx"
 #define RM_ATTR_DISPMODE	"display mode"
 #define RM_ATTR_DISPRES		"display results"
+// dosssman
+#define RM_ATTR_INITDIST "initdist"
+//end dossman
 
 #define RM_ATTR_TIMESTEP	"time step"
 

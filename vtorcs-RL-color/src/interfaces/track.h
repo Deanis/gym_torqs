@@ -24,7 +24,7 @@
     @ingroup	trackstruct
 */
 
- 
+
 #ifndef _TRACKV1_H_
 #define _TRACKV1_H_
 
@@ -441,7 +441,7 @@ typedef struct TrackOwnPit
 } tTrackOwnPit;
 
 /** Pits Info Structure */
-typedef struct 
+typedef struct
 {
 	int type;		/**< Type of Pit:
 				   - TR_PIT_NONE
@@ -476,7 +476,7 @@ typedef struct
     tdble	vSpace;
 } tTurnMarksInfo;
 
-typedef struct 
+typedef struct
 {
     char		*background;
     char		*background2;
@@ -590,7 +590,4 @@ typedef struct {
 
 #define TRK_ATT_FINISH	"finish segment"
 
-#endif /* _TRACKV1_H_ */ 
-
-
-
+#endif /* _TRACKV1_H_ */

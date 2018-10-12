@@ -442,36 +442,73 @@ void ReAddRacemanListButton(void *menuHandle) {
 		for (i = 0; i < ReInfo->s->_ncars; i++) {
 			car = &(ReInfo->carList[i]);
 			car->_speed_x = speedInit;
-			startpos = ReInfo->track->length - (d1 + (i / rows) * d2 + (i % rows) * d3);
-			tr = a + b * ((i % rows) + 1) / (rows + 1);
-			curseg = ReInfo->track->seg;  /* last segment */
-			while (startpos < curseg->lgfromstart) {
-				curseg = curseg->prev;
-			}
-			ts = startpos - curseg->lgfromstart;
-			car->_trkPos.seg = curseg;
-			car->_trkPos.toRight = tr;
-			switch (curseg->type) {
-				case TR_STR:
-				car->_trkPos.toStart = ts;
-				RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
-				car->_yaw = curseg->angle[TR_ZS];
-				break;
-				case TR_RGT:
-				car->_trkPos.toStart = ts / curseg->radius;
-				RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
-				car->_yaw = curseg->angle[TR_ZS] - car->_trkPos.toStart;
-				break;
-				case TR_LFT:
-				car->_trkPos.toStart = ts / curseg->radius;
-				RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
-				car->_yaw = curseg->angle[TR_ZS] + car->_trkPos.toStart;
-				break;
-			}
-			car->_pos_Z = RtTrackHeightL(&(car->_trkPos)) + heightInit;
 
-			NORM0_2PI(car->_yaw);
-			ReInfo->_reSimItf.config(car, ReInfo);
+			printf( "### DEBUG: initdist: %.f\n", car->_initdist);
+
+			if( car->_initdist >= 0) {
+				startpos = ReInfo->track->length - (car->_initdist + (i / rows) * d2 + (i % rows) * d3);
+				tr = a + b * ((i % rows) + 1) / (rows + 1);
+				curseg = ReInfo->track->seg;  /* last segment */
+				while (startpos < curseg->lgfromstart) {
+					curseg = curseg->prev;
+				}
+				ts = startpos - curseg->lgfromstart;
+				car->_trkPos.seg = curseg;
+				car->_trkPos.toRight = tr;
+				switch (curseg->type) {
+					case TR_STR:
+					car->_trkPos.toStart = ts;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS];
+					break;
+					case TR_RGT:
+					car->_trkPos.toStart = ts / curseg->radius;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS] - car->_trkPos.toStart;
+					break;
+					case TR_LFT:
+					car->_trkPos.toStart = ts / curseg->radius;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS] + car->_trkPos.toStart;
+					break;
+				}
+				car->_pos_Z = RtTrackHeightL(&(car->_trkPos)) + heightInit;
+
+				NORM0_2PI(car->_yaw);
+				ReInfo->_reSimItf.config(car, ReInfo);
+			}
+			else {
+				startpos = ReInfo->track->length - (d1 + (i / rows) * d2 + (i % rows) * d3);
+				tr = a + b * ((i % rows) + 1) / (rows + 1);
+				curseg = ReInfo->track->seg;  /* last segment */
+				while (startpos < curseg->lgfromstart) {
+					curseg = curseg->prev;
+				}
+				ts = startpos - curseg->lgfromstart;
+				car->_trkPos.seg = curseg;
+				car->_trkPos.toRight = tr;
+				switch (curseg->type) {
+					case TR_STR:
+					car->_trkPos.toStart = ts;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS];
+					break;
+					case TR_RGT:
+					car->_trkPos.toStart = ts / curseg->radius;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS] - car->_trkPos.toStart;
+					break;
+					case TR_LFT:
+					car->_trkPos.toStart = ts / curseg->radius;
+					RtTrackLocal2Global(&(car->_trkPos), &(car->_pos_X), &(car->_pos_Y), TR_TORIGHT);
+					car->_yaw = curseg->angle[TR_ZS] + car->_trkPos.toStart;
+					break;
+				}
+				car->_pos_Z = RtTrackHeightL(&(car->_trkPos)) + heightInit;
+
+				NORM0_2PI(car->_yaw);
+				ReInfo->_reSimItf.config(car, ReInfo);
+			}
 		}
 	}
 
@@ -623,6 +660,7 @@ int ReInitCars(void) {
 		/* Get Shared library name */
 		sprintf(path, "%s/%d", RM_SECT_DRIVERS_RACING, i);
 		cardllname = GfParmGetStr(ReInfo->params, path, RM_ATTR_MODULE, "");
+
 		robotIdx = (int)GfParmGetNum(ReInfo->params, path, RM_ATTR_IDX, NULL, 0);
 		sprintf(path, "%sdrivers/%s/%s.%s", GetLibDir (), cardllname, cardllname, DLLEXT);
 
@@ -666,6 +704,7 @@ int ReInitCars(void) {
 					strncpy(elt->_carName, GfParmGetStr(robhdle, path, ROB_ATTR_CAR, ""), MAX_NAME_LEN - 1);
 					elt->_carName[MAX_NAME_LEN - 1] = 0;
 					elt->_raceNumber = (int)GfParmGetNum(robhdle, path, ROB_ATTR_RACENUM, (char*)NULL, 0);
+
 					if (strcmp(GfParmGetStr(robhdle, path, ROB_ATTR_TYPE, ROB_VAL_ROBOT), ROB_VAL_ROBOT)) {
 						elt->_driverType = RM_DRV_HUMAN;
 					} else {
@@ -682,6 +721,13 @@ int ReInitCars(void) {
 					elt->_startRank  = index;
 					elt->_pos        = index+1;
 					elt->_remainingLaps = ReInfo->s->_totLaps;
+
+					// dosssman
+					char tmp[1024];
+					sprintf( tmp, "%s_%d", RM_ATTR_INITDIST, i);
+					float initdist = GfParmGetNum( ReInfo->params, RM_SECT_DRIVERS, tmp, NULL, -1);
+					elt->_initdist = initdist;
+					// printf( "### DEBUG: initdist: %.f\n", elt->_initdist);
 
 					/* handle contains the drivers modifications to the car */
 					/* Read Car model specifications */
