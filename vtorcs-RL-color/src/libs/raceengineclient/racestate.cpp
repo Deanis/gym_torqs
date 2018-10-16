@@ -562,12 +562,12 @@ void append_episode_data() {
 	// Basically goto newline and the data appending at the timestep level does
 	// rest
 	// DEBUG Show expert score
-	float ret_cum = 0.0;
-	for( ushort i = 0; i < getRecTimestepLimit(); i+=5) {
-		ret_cum += rews[i];
-	}
+	// float ret_cum = 0.0;
+	// for( ushort i = 0; i < getRecTimestepLimit(); i+=5) {
+	// 	ret_cum += rews[i];
+	// }
 
-	printf("#### DEBUG: Expert Score: %f", ret_cum);
+	printf("\n#### DEBUG: Expert Score: %f\n", ret_cum);
 
 	// printf( "### DEBUG: Reached file writing episode end\n");
 	open_save_files();
