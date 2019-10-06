@@ -197,6 +197,7 @@ reRaceRealStart(void)
 	ReRaceModList->modInfo->fctInit(ReRaceModList->modInfo->index, &ReInfo->_reSimItf);
 
 	if (ReInitCars()) {
+		printf( "### DEBUG from vtorcs: ReInitCars apparently provoques an RM_QUIT");
 		return RM_QUIT;
 	}
 
