@@ -78,8 +78,11 @@ static unsigned char* tmpimg;
 
 // Doss debug: figuring how many timestep per seconds
 // struct timeb start_time, end_time;
+// #define __DEBUG_FREQUENCY__
+#ifdef __DEBUG_FREQUENCY__
 long int elapsed_ms = 0, last_ms_checkpoint = 0;
 int freq_timestep = 0;
+#endif
 
 /* Compute Pit stop time */
 static void ReUpdtPitTime(tCarElt *car) {
@@ -735,10 +738,12 @@ static void ReOneStep(double deltaTimeIncrement) {
 		s->currentTime = 0.0; /* resynchronize */
 		ReInfo->_reLastTime = 0.0;
 
+		#ifdef __DEBUG_FREQUENCY__
 		// Doss frequency Debug
 		elapsed_ms = 0;
 		freq_timestep = 0;
 		last_ms_checkpoint = duration_cast< milliseconds >( system_clock::now().time_since_epoch()).count();
+		#endif __DEBUG_FREQUENCY__
 	}
 
 	START_PROFILE("rbDrive*");
@@ -932,6 +937,7 @@ int ReUpdate(void) {
 		// ReSortCars();
 	// }
 
+	#ifdef __DEBUG_FREQUENCY__
 	// doss freq debug
 	// Bear in mind that this has its own cost, especially the printf operatins
 	freq_timestep++;
@@ -946,7 +952,7 @@ int ReUpdate(void) {
 		freq_timestep = 0;
 	}
 	// doss freq debug end
-	
+	#endif
 	return RM_ASYNC;
 }
 
