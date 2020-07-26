@@ -498,15 +498,15 @@ void append_step_data() {
 
 	// CSV style logging with corresponding Torcs normalizing
 
-	obs += SimpleParser::stringifym( angle / 3.1416); //angle, Reging
-	obs += SimpleParser::stringifym( trackSensorOut, 19); // track, Reg in colect
-	obs += SimpleParser::stringifym( dist_to_middle / 1.0); // trackPos, Reging
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_x / 300.0); // Reging
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_y / 300.0); // Reging
-	obs += SimpleParser::stringifym( 3.6 * car->_speed_z / 300.0); // Reging
-	obs += SimpleParser::stringifym( wheelSpinVel, 4); // wheelspinvel
-	obs += SimpleParser::stringifym( car->_enginerpm / 1000); // Funny reg to match GymTorcs
-	obs += SimpleParser::stringifym( oppSensorOut, 36); // opp sensoirs
+	obs += SimpleParser::stringifym( angle / 3.1416); //angle, Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( trackSensorOut, 19); // track, Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( dist_to_middle / 1.0); // trackPos, Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_x / 300.0); // Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_y / 300.0); // Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( 3.6 * car->_speed_z / 300.0); // Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( wheelSpinVel, 4); // wheelspinvel Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( car->_enginerpm / 10000); // Observation normalization matching with TorcsEnv.py
+	obs += SimpleParser::stringifym( oppSensorOut, 36); // opponent sensors Observation normalization matching with TorcsEnv.py
 
 	// TODO Free Pointers of observations vars
 	// They will be reinited at the new race start
