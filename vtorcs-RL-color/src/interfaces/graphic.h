@@ -28,7 +28,7 @@
 
 // dosssman
 // REVIEW: hardcoded
-#define GR_PARAM_FILE		"/home/.torcs/config/graph.xml"
+#define GR_PARAM_FILE		"/root/.torcs/config/graph.xml"
 // end dosssman
 
 #define GR_SOUND_PARM_CFG			"config/sound.xml"
